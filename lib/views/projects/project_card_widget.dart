@@ -55,7 +55,7 @@ class ProjectCardWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Imagem: ${project.originalImagePath}',
+                      'Imagem: ${project.currentImagePath}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,

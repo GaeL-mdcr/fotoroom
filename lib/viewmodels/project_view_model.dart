@@ -146,6 +146,33 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> atualizarImagemEditadaDoProjeto({
+    required String id,
+    required String editedImagePath,
+  }) async {
+    final index = _projetos.indexWhere(
+      (projeto) => projeto.id == id,
+    );
+
+    if (index == -1) return;
+
+    final projetoAtualizado = _projetos[index].copyWith(
+      editedImagePath: editedImagePath,
+      thumbnailPath: editedImagePath,
+      updatedAt: DateTime.now(),
+    );
+
+    await _repository.salvarProjeto(projetoAtualizado);
+
+    _projetos = await _repository.listarProjetos();
+
+    if (_projetoSelecionado?.id == id) {
+      _projetoSelecionado = projetoAtualizado;
+    }
+
+    notifyListeners();
+  }
+
   Future<bool> criarProjetoComImagemSelecionada({
     required String nome,
   }) async {

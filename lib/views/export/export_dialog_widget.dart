@@ -15,8 +15,8 @@ class ExportDialogWidget extends StatelessWidget {
         final config = exportViewModel.configuracao;
         final isJpg = config.format == ExportImageFormat.jpg;
 
-        final originalImagePath = editorViewModel.originalImagePath;
-        final podeExportar = originalImagePath != null &&
+        final imagePath = editorViewModel.currentImagePath;
+        final podeExportar = imagePath != null &&
             !exportViewModel.exportando &&
             !exportViewModel.compartilhando;
 
@@ -132,7 +132,7 @@ class ExportDialogWidget extends StatelessWidget {
               onPressed: podeExportar
                   ? () async {
                       await exportViewModel.exportarImagem(
-                        originalImagePath: originalImagePath,
+                        originalImagePath: imagePath,
                         editorState: editorViewModel.estadoAtual,
                       );
                     }

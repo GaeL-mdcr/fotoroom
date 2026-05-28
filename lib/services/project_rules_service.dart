@@ -23,6 +23,7 @@ class ProjectRulesService {
       id: _gerarId(agora),
       name: nomeValidado,
       originalImagePath: caminhoImagemOriginal,
+      editedImagePath: null,
       thumbnailPath: null,
       editorState: const EditorStateModel(),
       createdAt: agora,

@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/app_spacing.dart';
@@ -12,6 +14,7 @@ import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
 import 'editor_toolbar_widget.dart';
 import 'filter_panel_widget.dart';
+import 'pro_image_editor_page.dart';
 
 class EditorPage extends StatelessWidget {
   const EditorPage({super.key});
@@ -57,6 +60,51 @@ class EditorPage extends StatelessWidget {
                 icon: const Icon(Icons.save_outlined),
               ),
               IconButton(
+                tooltip: 'Editar imagem',
+                onPressed: () async {
+                  final imagePath = viewModel.currentImagePath;
+
+                  if (imagePath == null || imagePath.trim().isEmpty) {
+                    return;
+                  }
+
+                  final bytes = await Navigator.push<Uint8List>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ProImageEditorPage(
+                          imagePath: imagePath,
+                        );
+                      },
+                    ),
+                  );
+
+                  if (bytes == null) return;
+
+                  viewModel.definirImagemEditada(bytes);
+
+                  final editedPath = await viewModel.salvarImagemEditadaEmArquivo();
+
+                  if (!context.mounted || editedPath == null) return;
+
+                  await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
+                        id: viewModel.projectId!,
+                        editedImagePath: editedPath,
+                      );
+
+                  viewModel.marcarImagemEditadaComoSalva(editedPath);
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Imagem editada salva no projeto.'),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.tune),
+              ),
+              IconButton(
                 tooltip: 'Exportar imagem',
                 onPressed: () {
                   showDialog(
@@ -76,7 +124,7 @@ class EditorPage extends StatelessWidget {
               children: [
                 EditorProjectHeaderWidget(
                   projectName: viewModel.projectName ?? 'Projeto sem nome',
-                  imagePath: viewModel.originalImagePath ?? 'Imagem não informada',
+                  imagePath: viewModel.currentImagePath ?? 'Imagem não informada',
                   hasUnsavedChanges: viewModel.possuiAlteracoesNaoSalvas,
                   onClose: () {
                     _confirmarFechamentoProjeto(context, viewModel);
@@ -85,6 +133,8 @@ class EditorPage extends StatelessWidget {
                 const SizedBox(height: AppSpacing.medium),
                 EditorPreviewWidget(
                   editorState: estado,
+                  imagePath: viewModel.currentImagePath,
+                  imageBytes: viewModel.imagemEditadaBytes,
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 const EditorToolbarWidget(),
