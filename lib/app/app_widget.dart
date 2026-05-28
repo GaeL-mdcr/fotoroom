@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import '../common/app_colors.dart';
 import '../models/app_settings_model.dart';
 import '../repositories/project_local_repository.dart';
-import '../services/image_picker_service.dart';
+import '../services/editor_rules_service.dart';
 import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
+import '../services/image_picker_service.dart';
 import '../services/image_render_service.dart';
 import '../services/project_rules_service.dart';
 import '../services/share_service.dart';
-import '../services/editor_rules_service.dart';
 import '../viewmodels/editor_view_model.dart';
 import '../viewmodels/export_view_model.dart';
 import '../viewmodels/project_view_model.dart';
@@ -26,8 +26,10 @@ class AppWidget extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) {
+            final fileStorageService = FileStorageService();
+
             final viewModel = ProjectViewModel(
-              ProjectLocalRepository(),
+              ProjectLocalRepository(fileStorageService),
               ImagePickerService(),
               ProjectRulesService(),
             );
@@ -59,7 +61,9 @@ class AppWidget extends StatelessWidget {
           return MaterialApp(
             title: 'FotoRoom',
             debugShowCheckedModeBanner: false,
-            themeMode: _converterTema(settingsViewModel.configuracoes.themeMode),
+            themeMode: _converterTema(
+              settingsViewModel.configuracoes.themeMode,
+            ),
             theme: ThemeData(
               useMaterial3: true,
               colorSchemeSeed: AppColors.primary,
