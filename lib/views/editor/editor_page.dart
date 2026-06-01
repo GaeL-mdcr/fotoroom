@@ -1,5 +1,4 @@
-﻿import 'dart:typed_data';
-
+﻿
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,13 +6,9 @@ import '../../common/app_spacing.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
 import '../../viewmodels/editor_view_model.dart';
-import '../../viewmodels/project_view_model.dart';
 import '../export/export_dialog_widget.dart';
-import 'adjustment_panel_widget.dart';
 import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
-import 'editor_toolbar_widget.dart';
-import 'filter_panel_widget.dart';
 import 'pro_image_editor_page.dart';
 
 class EditorPage extends StatelessWidget {
@@ -21,7 +16,7 @@ class EditorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<EditorViewModel>(
+    return Consumer(
       builder: (context, viewModel, child) {
         if (!viewModel.possuiProjetoAberto) {
           return Scaffold(
@@ -31,76 +26,20 @@ class EditorPage extends StatelessWidget {
             body: const AppEmptyStateWidget(
               icon: Icons.edit_outlined,
               title: 'Nenhum projeto aberto',
-              message: 'Crie ou abra um projeto na aba Projetos para começar a editar.',
+              message:
+                  'Crie ou abra um projeto na aba Projetos para começar a editar.',
             ),
           );
         }
-
-        final estado = viewModel.estadoAtual;
 
         return Scaffold(
           appBar: AppBar(
             title: const Text('Editor'),
             actions: [
               IconButton(
-                tooltip: 'Salvar projeto',
-                onPressed: viewModel.possuiAlteracoesNaoSalvas
-                    ? () async {
-                        await _salvarProjetoAberto(context, viewModel);
-
-                        if (!context.mounted) return;
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Projeto salvo.'),
-                          ),
-                        );
-                      }
-                    : null,
-                icon: const Icon(Icons.save_outlined),
-              ),
-              IconButton(
                 tooltip: 'Editar imagem',
-                onPressed: () async {
-                  final imagePath = viewModel.currentImagePath;
-
-                  if (imagePath == null || imagePath.trim().isEmpty) {
-                    return;
-                  }
-
-                  final bytes = await Navigator.push<Uint8List>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ProImageEditorPage(
-                          imagePath: imagePath,
-                        );
-                      },
-                    ),
-                  );
-
-                  if (bytes == null) return;
-
-                  viewModel.definirImagemEditada(bytes);
-
-                  final editedPath = await viewModel.salvarImagemEditadaEmArquivo();
-
-                  if (!context.mounted || editedPath == null) return;
-
-                  await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
-                        id: viewModel.projectId!,
-                        editedImagePath: editedPath,
-                      );
-
-                  viewModel.marcarImagemEditadaComoSalva(editedPath);
-
-                  if (!context.mounted) return;
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Imagem editada salva no projeto.'),
-                    ),
-                  );
+                onPressed: () {
+                  _abrirEditorDeImagem(context, viewModel);
                 },
                 icon: const Icon(Icons.tune),
               ),
@@ -121,10 +60,12 @@ class EditorPage extends StatelessWidget {
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.medium),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 EditorProjectHeaderWidget(
                   projectName: viewModel.projectName ?? 'Projeto sem nome',
-                  imagePath: viewModel.currentImagePath ?? 'Imagem não informada',
+                  imagePath:
+                      viewModel.currentImagePath ?? 'Imagem não informada',
                   hasUnsavedChanges: viewModel.possuiAlteracoesNaoSalvas,
                   onClose: () {
                     _confirmarFechamentoProjeto(context, viewModel);
@@ -132,16 +73,30 @@ class EditorPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 EditorPreviewWidget(
-                  editorState: estado,
                   imagePath: viewModel.currentImagePath,
                   imageBytes: viewModel.imagemEditadaBytes,
                 ),
                 const SizedBox(height: AppSpacing.medium),
-                const EditorToolbarWidget(),
-                const SizedBox(height: AppSpacing.medium),
-                const AdjustmentPanelWidget(),
-                const SizedBox(height: AppSpacing.medium),
-                const FilterPanelWidget(),
+                FilledButton.icon(
+                  onPressed: () {
+                    _abrirEditorDeImagem(context, viewModel);
+                  },
+                  icon: const Icon(Icons.tune),
+                  label: const Text('Editar imagem'),
+                ),
+                const SizedBox(height: AppSpacing.small),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return const ExportDialogWidget();
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.ios_share),
+                  label: const Text('Exportar ou compartilhar'),
+                ),
               ],
             ),
           ),
@@ -150,7 +105,56 @@ class EditorPage extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmarFechamentoProjeto(
+  Future _abrirEditorDeImagem(
+    BuildContext context,
+    EditorViewModel viewModel,
+  ) async {
+    final imagePath = viewModel.currentImagePath;
+
+    if (imagePath == null || imagePath.trim().isEmpty) {
+      return;
+    }
+
+    final bytes = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return ProImageEditorPage(
+            imagePath: imagePath,
+          );
+        },
+      ),
+    );
+
+    if (!context.mounted || bytes == null) return;
+
+    viewModel.definirImagemEditada(bytes);
+
+    final editedPath = await viewModel.salvarImagemEditadaEmArquivo();
+
+    if (!context.mounted || editedPath == null) return;
+
+    final projectId = viewModel.projectId;
+
+    if (projectId == null) return;
+
+    await context.read().atualizarImagemEditadaDoProjeto(
+          id: projectId,
+          editedImagePath: editedPath,
+        );
+
+    viewModel.marcarImagemEditadaComoSalva(editedPath);
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Imagem editada salva no projeto.'),
+      ),
+    );
+  }
+
+  Future _confirmarFechamentoProjeto(
     BuildContext context,
     EditorViewModel editorViewModel,
   ) async {
@@ -184,7 +188,7 @@ class EditorPage extends StatelessWidget {
     }
   }
 
-  Future<void> _salvarProjetoAberto(
+  Future _salvarProjetoAberto(
     BuildContext context,
     EditorViewModel editorViewModel,
   ) async {
@@ -192,7 +196,7 @@ class EditorPage extends StatelessWidget {
 
     if (projectId == null) return;
 
-    await context.read<ProjectViewModel>().atualizarEstadoDoProjeto(
+    await context.read().atualizarEstadoDoProjeto(
           id: projectId,
           editorState: editorViewModel.estadoAtual,
         );
