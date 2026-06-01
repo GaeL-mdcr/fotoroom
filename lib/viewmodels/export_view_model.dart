@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../models/editor_state_model.dart';
 import '../models/export_config_model.dart';
-import '../services/image_render_service.dart';
 import '../services/export_rules_service.dart';
+import '../services/image_render_service.dart';
 import '../services/share_service.dart';
 
 class ExportViewModel extends ChangeNotifier {
@@ -44,11 +43,11 @@ class ExportViewModel extends ChangeNotifier {
   }
 
   void alterarQualidade(int qualidade) {
-    final qualidadeAjustada = _exportRulesService.normalizarQualidade(qualidade);
-
-    _configuracao = _configuracao.copyWith(
-      quality: qualidadeAjustada,
+    final qualidadeAjustada = _exportRulesService.normalizarQualidade(
+      qualidade,
     );
+
+    _configuracao = _configuracao.copyWith(quality: qualidadeAjustada);
 
     _caminhoArquivoExportado = null;
     _mensagemErro = null;
@@ -56,13 +55,9 @@ class ExportViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> exportarImagem({
-    required String originalImagePath,
-    required EditorStateModel editorState,
-  }) async {
+  Future<void> exportarImagem({required String imagePath}) async {
     final validacao = _exportRulesService.validarExportacao(
-      originalImagePath: originalImagePath,
-      editorState: editorState,
+      imagePath: imagePath,
       exportConfig: _configuracao,
     );
 
@@ -79,8 +74,7 @@ class ExportViewModel extends ChangeNotifier {
 
     try {
       final caminho = await _imageRenderService.exportarImagem(
-        originalImagePath: originalImagePath,
-        editorState: editorState,
+        imagePath: imagePath,
         exportConfig: _configuracao,
       );
 

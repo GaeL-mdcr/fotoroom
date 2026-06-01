@@ -11,10 +11,7 @@ class EditorViewModel extends ChangeNotifier {
   final EditorRulesService _editorRulesService;
   final FileStorageService _fileStorageService;
 
-  EditorViewModel(
-    this._editorRulesService,
-    this._fileStorageService,
-  );
+  EditorViewModel(this._editorRulesService, this._fileStorageService);
 
   String? _projectId;
   String? _projectName;
@@ -133,9 +130,7 @@ class EditorViewModel extends ChangeNotifier {
   void alterarBrilho(double valor) {
     final valorNormalizado = _editorRulesService.normalizeAdjustment(valor);
 
-    _estadoAtual = _estadoAtual.copyWith(
-      brightness: valorNormalizado,
-    );
+    _estadoAtual = _estadoAtual.copyWith(brightness: valorNormalizado);
 
     _marcarComoAlterado();
     notifyListeners();
@@ -144,9 +139,7 @@ class EditorViewModel extends ChangeNotifier {
   void alterarContraste(double valor) {
     final valorNormalizado = _editorRulesService.normalizeAdjustment(valor);
 
-    _estadoAtual = _estadoAtual.copyWith(
-      contrast: valorNormalizado,
-    );
+    _estadoAtual = _estadoAtual.copyWith(contrast: valorNormalizado);
 
     _marcarComoAlterado();
     notifyListeners();
@@ -155,9 +148,7 @@ class EditorViewModel extends ChangeNotifier {
   void alterarSaturacao(double valor) {
     final valorNormalizado = _editorRulesService.normalizeAdjustment(valor);
 
-    _estadoAtual = _estadoAtual.copyWith(
-      saturation: valorNormalizado,
-    );
+    _estadoAtual = _estadoAtual.copyWith(saturation: valorNormalizado);
 
     _marcarComoAlterado();
     notifyListeners();
@@ -178,9 +169,7 @@ class EditorViewModel extends ChangeNotifier {
       _estadoAtual.rotationTurns + 1,
     );
 
-    _estadoAtual = _estadoAtual.copyWith(
-      rotationTurns: novaRotacao,
-    );
+    _estadoAtual = _estadoAtual.copyWith(rotationTurns: novaRotacao);
 
     _marcarComoAlterado();
     notifyListeners();
@@ -241,7 +230,9 @@ class EditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> salvarImagemEditadaEmArquivo() async {
+  Future<String?> salvarImagemEditadaEmArquivo({
+    required bool createNewFile,
+  }) async {
     final projectId = _projectId;
     final bytes = _imagemEditadaBytes;
 
@@ -252,6 +243,7 @@ class EditorViewModel extends ChangeNotifier {
     final editedPath = await _fileStorageService.salvarImagemEditada(
       projectId: projectId,
       bytes: bytes,
+      createNewFile: createNewFile,
     );
 
     return editedPath;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/export_config_model.dart';
 import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/export_view_model.dart';
 
@@ -12,11 +11,12 @@ class ExportDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<ExportViewModel, EditorViewModel>(
       builder: (context, exportViewModel, editorViewModel, child) {
-        final config = exportViewModel.configuracao;
-        final isJpg = config.format == ExportImageFormat.jpg;
+        final imagePath = editorViewModel.editedImagePath;
+        final possuiImagemFinal =
+            imagePath != null && imagePath.trim().isNotEmpty;
 
-        final imagePath = editorViewModel.currentImagePath;
-        final podeExportar = imagePath != null &&
+        final podeExportar =
+            possuiImagemFinal &&
             !exportViewModel.exportando &&
             !exportViewModel.compartilhando;
 
@@ -26,66 +26,39 @@ class ExportDialogWidget extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                RadioGroup<ExportImageFormat>(
-                  groupValue: config.format,
-                  onChanged: (value) {
-                    if (value == null) return;
-                    exportViewModel.alterarFormato(value);
-                  },
-                  child: const Column(
-                    children: [
-                      RadioListTile<ExportImageFormat>(
-                        title: Text('JPG'),
-                        subtitle: Text('Arquivo menor, qualidade ajustável'),
-                        value: ExportImageFormat.jpg,
-                      ),
-                      RadioListTile<ExportImageFormat>(
-                        title: Text('PNG'),
-                        subtitle: Text('Melhor qualidade, arquivo maior'),
-                        value: ExportImageFormat.png,
-                      ),
-                    ],
+                if (!possuiImagemFinal) ...[
+                  const Icon(Icons.info_outline, size: 40),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Para exportar, primeiro edite a imagem e confirme no editor.',
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 12),
-                if (isJpg) ...[
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Qualidade JPG: ${config.quality}%',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'O FotoRoom exporta a imagem final em JPG.',
+                    textAlign: TextAlign.center,
                   ),
-                  Slider(
-                    value: config.quality.toDouble(),
-                    min: 10,
-                    max: 100,
-                    divisions: 9,
-                    label: '${config.quality}%',
-                    onChanged: exportViewModel.exportando
-                        ? null
-                        : (value) {
-                            exportViewModel.alterarQualidade(value.round());
-                          },
+                ],
+                if (possuiImagemFinal) ...[
+                  const Icon(Icons.image_outlined, size: 40),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'A imagem final será exportada em JPG.',
+                    textAlign: TextAlign.center,
                   ),
                 ],
                 if (exportViewModel.exportando) ...[
                   const SizedBox(height: 12),
                   const CircularProgressIndicator(),
                   const SizedBox(height: 8),
-                  const Text('Exportando imagem...'),
+                  const Text('Preparando imagem...'),
                 ],
                 if (exportViewModel.caminhoArquivoExportado != null) ...[
                   const SizedBox(height: 12),
-                  const Icon(
-                    Icons.check_circle_outline,
-                    size: 40,
-                  ),
+                  const Icon(Icons.check_circle_outline, size: 40),
                   const SizedBox(height: 8),
                   Text(
-                    'Arquivo gerado: ${exportViewModel.caminhoArquivoExportado}',
+                    'Arquivo pronto:\n${exportViewModel.caminhoArquivoExportado}',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -94,9 +67,7 @@ class ExportDialogWidget extends StatelessWidget {
                   Text(
                     exportViewModel.mensagemErro!,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.red,
-                    ),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ],
               ],
@@ -121,7 +92,7 @@ class ExportDialogWidget extends StatelessWidget {
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Compartilhamento concluído.'),
+                            content: Text('Compartilhamento solicitado.'),
                           ),
                         );
                       },
@@ -132,13 +103,12 @@ class ExportDialogWidget extends StatelessWidget {
               onPressed: podeExportar
                   ? () async {
                       await exportViewModel.exportarImagem(
-                        originalImagePath: imagePath,
-                        editorState: editorViewModel.estadoAtual,
+                        imagePath: imagePath,
                       );
                     }
                   : null,
               icon: const Icon(Icons.ios_share),
-              label: const Text('Exportar'),
+              label: const Text('Preparar JPG'),
             ),
           ],
         );
