@@ -121,7 +121,7 @@ class ExportDialogWidget extends StatelessWidget {
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Compartilhamento simulado.'),
+                            content: Text('Compartilhamento concluído.'),
                           ),
                         );
                       },

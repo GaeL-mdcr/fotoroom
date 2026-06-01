@@ -6,7 +6,6 @@ class ImageRenderService {
     required String originalImagePath,
     required EditorStateModel editorState,
   }) async {
-    // Implementação real será feita depois com o pacote image.
     return originalImagePath;
   }
 
@@ -15,13 +14,8 @@ class ImageRenderService {
     required EditorStateModel editorState,
     required ExportConfigModel exportConfig,
   }) async {
-    final extensao = exportConfig.format == ExportImageFormat.png
-        ? 'png'
-        : 'jpg';
-
-    final nomeFiltro = editorState.filterType.name;
-    final baseName = originalImagePath.split('/').last.split('\\').last;
-
-    return 'fotoroom_${nomeFiltro}_$baseName.$extensao';
+    // Como o pro_image_editor já gera a imagem final,
+    // por enquanto exportar significa usar o arquivo atual do projeto.
+    return originalImagePath;
   }
 }

@@ -38,6 +38,7 @@ dependencies:
   image_picker: ^1.2.2
   path_provider: ^2.1.5
   pro_image_editor: ^12.4.5
+  share_plus: ^13.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
