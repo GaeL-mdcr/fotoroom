@@ -48,6 +48,28 @@ class FileStorageService {
     return exportsDirectory;
   }
 
+  Future salvarImagemOriginal({
+    required String projectId,
+    required String sourceImagePath,
+  }) async {
+    final sourceFile = File(sourceImagePath);
+
+    if (!await sourceFile.exists()) {
+      throw Exception('Imagem original não encontrada.');
+    }
+
+    final projectDirectory = await _obterDiretorioDoProjeto(projectId);
+
+    final extension = _obterExtensaoArquivo(sourceImagePath);
+    final destinationFile = File(
+      '${projectDirectory.path}/original.$extension',
+    );
+
+    await sourceFile.copy(destinationFile.path);
+
+    return destinationFile.path;
+  }
+
   Future salvarImagemEditada({
     required String projectId,
     required Uint8List bytes,
@@ -136,5 +158,18 @@ class FileStorageService {
     }
 
     await projectDirectory.delete(recursive: true);
+  }
+
+  String _obterExtensaoArquivo(String filePath) {
+    final cleanPath = filePath.split('?').first;
+    final parts = cleanPath.split('.');
+
+    if (parts.length < 2) return 'jpg';
+
+    final ext = parts.last.trim().toLowerCase();
+
+    if (ext.isEmpty) return 'jpg';
+
+    return ext;
   }
 }

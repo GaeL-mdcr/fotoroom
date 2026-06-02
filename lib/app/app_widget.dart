@@ -30,8 +30,7 @@ class AppWidget extends StatelessWidget {
             final viewModel = ProjectViewModel(
               ProjectLocalRepository(fileStorageService),
               ImagePickerService(),
-              ProjectRulesService(),
-            );
+              ProjectRulesService(),              fileStorageService,            );
 
             viewModel.carregarProjetos();
 
