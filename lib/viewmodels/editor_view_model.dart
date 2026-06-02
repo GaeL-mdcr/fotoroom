@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class EditorViewModel extends ChangeNotifier {
   Uint8List? _imagemEditadaBytes;
 
   bool _possuiAlteracoesNaoSalvas = false;
+  int _previewVersion = 0;
 
   String? get projectId => _projectId;
   String? get projectName => _projectName;
@@ -27,6 +29,8 @@ class EditorViewModel extends ChangeNotifier {
   String? get editedImagePath => _editedImagePath;
 
   Uint8List? get imagemEditadaBytes => _imagemEditadaBytes;
+
+  int get previewVersion => _previewVersion;
 
   bool get possuiProjetoAberto => _projectId != null;
   bool get possuiAlteracoesNaoSalvas => _possuiAlteracoesNaoSalvas;
@@ -49,6 +53,7 @@ class EditorViewModel extends ChangeNotifier {
 
     _imagemEditadaBytes = null;
     _possuiAlteracoesNaoSalvas = false;
+    _previewVersion++;
 
     notifyListeners();
   }
@@ -61,6 +66,7 @@ class EditorViewModel extends ChangeNotifier {
 
     _imagemEditadaBytes = null;
     _possuiAlteracoesNaoSalvas = false;
+    _previewVersion++;
 
     notifyListeners();
   }
@@ -68,6 +74,7 @@ class EditorViewModel extends ChangeNotifier {
   void definirImagemEditada(Uint8List bytes) {
     _imagemEditadaBytes = bytes;
     _possuiAlteracoesNaoSalvas = true;
+    _previewVersion++;
 
     notifyListeners();
   }
@@ -92,9 +99,16 @@ class EditorViewModel extends ChangeNotifier {
   }
 
   void marcarImagemEditadaComoSalva(String editedImagePath) {
+    final imageProvider = FileImage(
+      File(editedImagePath),
+    );
+
+    imageProvider.evict();
+
     _editedImagePath = editedImagePath;
     _imagemEditadaBytes = null;
     _possuiAlteracoesNaoSalvas = false;
+    _previewVersion++;
 
     notifyListeners();
   }

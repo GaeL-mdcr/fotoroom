@@ -101,7 +101,6 @@ class ProjectViewModel extends ChangeNotifier {
   Future criarProjetoComImagemSelecionada({
     required String nome,
   }) async {
-    _carregando = true;
     _mensagemErro = null;
     notifyListeners();
 
@@ -109,26 +108,24 @@ class ProjectViewModel extends ChangeNotifier {
       final caminhoImagem = await _imagePickerService.selecionarImagemDaGaleria();
 
       if (caminhoImagem == null) {
-        _carregando = false;
-        notifyListeners();
         return false;
       }
+
+      _carregando = true;
+      notifyListeners();
 
       final criouProjeto = await criarProjeto(
         nome: nome,
         caminhoImagemOriginal: caminhoImagem,
       );
 
-      _carregando = false;
-      notifyListeners();
-
       return criouProjeto;
     } catch (_) {
       _mensagemErro = 'Não foi possível criar o projeto.';
+      return false;
+    } finally {
       _carregando = false;
       notifyListeners();
-
-      return false;
     }
   }
 

@@ -70,6 +70,9 @@ class EditorPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 EditorPreviewWidget(
+                  key: ValueKey(
+                    'preview_${viewModel.currentImagePath}_${viewModel.previewVersion}',
+                  ),
                   imagePath: viewModel.currentImagePath,
                   imageBytes: viewModel.imagemEditadaBytes,
                 ),
@@ -129,6 +132,14 @@ class EditorPage extends StatelessWidget {
 
     if (!context.mounted || bytes == null) return;
 
+    debugPrint('EditorPage recebeu imagem editada: ${bytes.length} bytes');
+
+    await Future.delayed(
+      const Duration(milliseconds: 200),
+    );
+
+    if (!context.mounted) return;
+
     final saveMode = await showSaveEditedImageDialog(
       context: context,
       hasEditedImage: viewModel.possuiImagemEditadaSalva,
@@ -145,6 +156,8 @@ class EditorPage extends StatelessWidget {
     );
 
     if (!context.mounted || editedPath == null) return;
+
+    debugPrint('Imagem editada salva em: $editedPath');
 
     final projectId = viewModel.projectId;
 

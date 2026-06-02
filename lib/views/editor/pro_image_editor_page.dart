@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
-class ProImageEditorPage extends StatelessWidget {
+class ProImageEditorPage extends StatefulWidget {
   final String imagePath;
 
   const ProImageEditorPage({
@@ -13,17 +13,37 @@ class ProImageEditorPage extends StatelessWidget {
   });
 
   @override
+  State<ProImageEditorPage> createState() => _ProImageEditorPageState();
+}
+
+class _ProImageEditorPageState extends State<ProImageEditorPage> {
+  bool _fechandoEditor = false;
+
+  @override
   Widget build(BuildContext context) {
     return ProImageEditor.file(
-      File(imagePath),
+      File(widget.imagePath),
       callbacks: ProImageEditorCallbacks(
         onImageEditingComplete: (Uint8List bytes) async {
-          if (!context.mounted) return;
+          if (_fechandoEditor) return;
 
-          Navigator.pop(context, bytes);
+          _fechandoEditor = true;
+
+          debugPrint('ProImageEditor retornou ${bytes.length} bytes');
+
+          if (!mounted) return;
+
+          Navigator.pop(
+            context,
+            bytes,
+          );
         },
         onCloseEditor: (_) {
-          if (!context.mounted) return;
+          if (_fechandoEditor) return;
+
+          _fechandoEditor = true;
+
+          if (!mounted) return;
 
           Navigator.pop(context);
         },

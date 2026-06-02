@@ -1,34 +1,41 @@
 import 'package:flutter/material.dart';
 
-Future<String?> showProjectNameDialog({
+Future showProjectNameDialog({
   required BuildContext context,
   required String title,
   required String confirmLabel,
-  String initialValue = '',
-}) async {
-  final controller = TextEditingController(text: initialValue);
+  String? initialValue,
+}) {
+  String nome = initialValue?.trim() ?? '';
 
-  final result = await showDialog<String>(
+  return showDialog(
     context: context,
     builder: (dialogContext) {
+      void confirmar() {
+        final nomeValidado = nome.trim();
+
+        if (nomeValidado.isEmpty) {
+          return;
+        }
+
+        Navigator.pop(dialogContext, nomeValidado);
+      }
+
       return AlertDialog(
         title: Text(title),
-        content: TextField(
-          controller: controller,
+        content: TextFormField(
+          initialValue: initialValue,
           autofocus: true,
           textInputAction: TextInputAction.done,
           decoration: const InputDecoration(
             labelText: 'Nome do projeto',
             border: OutlineInputBorder(),
           ),
-          onSubmitted: (_) {
-            final nome = controller.text.trim();
-
-            if (nome.isEmpty) {
-              return;
-            }
-
-            Navigator.pop(dialogContext, nome);
+          onChanged: (value) {
+            nome = value;
+          },
+          onFieldSubmitted: (_) {
+            confirmar();
           },
         ),
         actions: [
@@ -39,23 +46,11 @@ Future<String?> showProjectNameDialog({
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            onPressed: () {
-              final nome = controller.text.trim();
-
-              if (nome.isEmpty) {
-                return;
-              }
-
-              Navigator.pop(dialogContext, nome);
-            },
+            onPressed: confirmar,
             child: Text(confirmLabel),
           ),
         ],
       );
     },
   );
-
-  controller.dispose();
-
-  return result;
 }
