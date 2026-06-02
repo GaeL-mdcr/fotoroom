@@ -88,7 +88,7 @@ class ProjectsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          _criarProjetoSimulado(context);
+          _criarProjeto(context);
         },
         icon: const Icon(Icons.add),
         label: const Text('Novo'),
@@ -96,7 +96,7 @@ class ProjectsPage extends StatelessWidget {
     );
   }
 
-  Future<void> _criarProjetoSimulado(BuildContext context) async {
+  Future<void> _criarProjeto(BuildContext context) async {
     final viewModel = context.read<ProjectViewModel>();
 
     final nomeSugerido = viewModel.nomeSugeridoParaNovoProjeto;
@@ -117,8 +117,8 @@ class ProjectsPage extends StatelessWidget {
     if (!context.mounted) return;
 
     final mensagem = criouProjeto
-      ? 'Projeto criado com imagem selecionada.'
-      : 'Nenhuma imagem foi selecionada.';
+        ? 'Projeto criado com imagem selecionada.'
+        : viewModel.mensagemErro ?? 'Nenhuma imagem foi selecionada.';
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -204,17 +204,7 @@ class ProjectsPage extends StatelessWidget {
         return true;
 
       case UnsavedChangesAction.save:
-        final projectId = editorViewModel.projectId;
-
-        if (projectId == null) return true;
-
-        await context.read<ProjectViewModel>().atualizarEstadoDoProjeto(
-              id: projectId,
-              editorState: editorViewModel.estadoAtual,
-            );
-
         editorViewModel.marcarComoSalvo();
-
         return true;
     }
   }

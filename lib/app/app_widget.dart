@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../common/app_colors.dart';
 import '../models/app_settings_model.dart';
 import '../repositories/project_local_repository.dart';
-import '../services/editor_rules_service.dart';
 import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
 import '../services/image_picker_service.dart';
@@ -24,7 +23,7 @@ class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<ProjectViewModel>(
           create: (_) {
             final fileStorageService = FileStorageService();
 
@@ -39,20 +38,19 @@ class AppWidget extends StatelessWidget {
             return viewModel;
           },
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<EditorViewModel>(
           create: (_) => EditorViewModel(
-            EditorRulesService(),
             FileStorageService(),
           ),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<ExportViewModel>(
           create: (_) => ExportViewModel(
             ImageRenderService(),
             ShareService(),
             ExportRulesService(),
           ),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<SettingsViewModel>(
           create: (_) => SettingsViewModel(),
         ),
       ],

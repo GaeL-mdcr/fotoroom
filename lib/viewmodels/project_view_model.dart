@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/editor_state_model.dart';
 import '../models/project_model.dart';
 import '../repositories/project_repository.dart';
 import '../services/image_picker_service.dart';
@@ -49,7 +48,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> criarProjeto({
+  Future<bool> criarProjeto({
     required String nome,
     required String caminhoImagemOriginal,
   }) async {
@@ -61,18 +60,27 @@ class ProjectViewModel extends ChangeNotifier {
     if (resultado.isFailure || resultado.data == null) {
       _mensagemErro = resultado.error;
       notifyListeners();
-      return;
+      return false;
     }
 
-    final projeto = resultado.data!;
+    try {
+      final projeto = resultado.data!;
 
-    await _repository.salvarProjeto(projeto);
+      await _repository.salvarProjeto(projeto);
 
-    _projetos = await _repository.listarProjetos();
-    _projetoSelecionado = projeto;
-    _mensagemErro = null;
+      _projetos = await _repository.listarProjetos();
+      _projetoSelecionado = projeto;
+      _mensagemErro = null;
 
-    notifyListeners();
+      notifyListeners();
+
+      return true;
+    } catch (_) {
+      _mensagemErro = 'Não foi possível salvar o projeto.';
+      notifyListeners();
+
+      return false;
+    }
   }
 
   void selecionarProjeto(ProjectModel projeto) {
@@ -120,32 +128,6 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> atualizarEstadoDoProjeto({
-    required String id,
-    required EditorStateModel editorState,
-  }) async {
-    final index = _projetos.indexWhere(
-      (projeto) => projeto.id == id,
-    );
-
-    if (index == -1) return;
-
-    final projetoAtualizado = _projetos[index].copyWith(
-      editorState: editorState,
-      updatedAt: DateTime.now(),
-    );
-
-    await _repository.salvarProjeto(projetoAtualizado);
-
-    _projetos = await _repository.listarProjetos();
-
-    if (_projetoSelecionado?.id == id) {
-      _projetoSelecionado = projetoAtualizado;
-    }
-
-    notifyListeners();
-  }
-
   Future<void> atualizarImagemEditadaDoProjeto({
     required String id,
     required String editedImagePath,
@@ -189,7 +171,7 @@ class ProjectViewModel extends ChangeNotifier {
         return false;
       }
 
-      await criarProjeto(
+      final criouProjeto = await criarProjeto(
         nome: nome,
         caminhoImagemOriginal: caminhoImagem,
       );
@@ -197,7 +179,7 @@ class ProjectViewModel extends ChangeNotifier {
       _carregando = false;
       notifyListeners();
 
-      return true;
+      return criouProjeto;
     } catch (_) {
       _mensagemErro = 'Não foi possível criar o projeto.';
       _carregando = false;

@@ -1,12 +1,9 @@
-import 'editor_state_model.dart';
-
 class ProjectModel {
   final String id;
   final String name;
   final String originalImagePath;
   final String? editedImagePath;
   final String? thumbnailPath;
-  final EditorStateModel editorState;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -16,7 +13,6 @@ class ProjectModel {
     required this.originalImagePath,
     this.editedImagePath,
     this.thumbnailPath,
-    required this.editorState,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -35,7 +31,6 @@ class ProjectModel {
     String? originalImagePath,
     String? editedImagePath,
     String? thumbnailPath,
-    EditorStateModel? editorState,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -45,7 +40,6 @@ class ProjectModel {
       originalImagePath: originalImagePath ?? this.originalImagePath,
       editedImagePath: editedImagePath ?? this.editedImagePath,
       thumbnailPath: thumbnailPath ?? this.thumbnailPath,
-      editorState: editorState ?? this.editorState,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -58,26 +52,18 @@ class ProjectModel {
       'originalImagePath': originalImagePath,
       'editedImagePath': editedImagePath,
       'thumbnailPath': thumbnailPath,
-      'editorState': editorState.toMap(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
   factory ProjectModel.fromMap(Map<String, dynamic> map) {
-    final editorStateMap = map['editorState'];
-
     return ProjectModel(
       id: map['id'] as String,
       name: map['name'] as String,
       originalImagePath: map['originalImagePath'] as String,
       editedImagePath: map['editedImagePath'] as String?,
       thumbnailPath: map['thumbnailPath'] as String?,
-      editorState: editorStateMap is Map
-          ? EditorStateModel.fromMap(
-              Map<String, dynamic>.from(editorStateMap),
-            )
-          : const EditorStateModel(),
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
     );

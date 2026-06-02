@@ -1,5 +1,4 @@
 import '../common/result.dart';
-import '../models/editor_state_model.dart';
 import '../models/project_model.dart';
 
 class ProjectRulesService {
@@ -24,8 +23,7 @@ class ProjectRulesService {
       name: nomeValidado,
       originalImagePath: caminhoImagemOriginal,
       editedImagePath: null,
-      thumbnailPath: null,
-      editorState: const EditorStateModel(),
+      thumbnailPath: caminhoImagemOriginal,
       createdAt: agora,
       updatedAt: agora,
     );

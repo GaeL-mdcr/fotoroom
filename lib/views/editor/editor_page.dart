@@ -1,4 +1,4 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +23,9 @@ class EditorPage extends StatelessWidget {
       builder: (context, viewModel, child) {
         if (!viewModel.possuiProjetoAberto) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Editor')),
+            appBar: AppBar(
+              title: const Text('Editor'),
+            ),
             body: const AppEmptyStateWidget(
               icon: Icons.edit_outlined,
               title: 'Nenhum projeto aberto',
@@ -60,8 +62,7 @@ class EditorPage extends StatelessWidget {
               children: [
                 EditorProjectHeaderWidget(
                   projectName: viewModel.projectName ?? 'Projeto sem nome',
-                  imagePath:
-                      viewModel.currentImagePath ?? 'Imagem não informada',
+                  imagePath: viewModel.currentImagePath ?? 'Imagem não informada',
                   hasUnsavedChanges: viewModel.possuiAlteracoesNaoSalvas,
                   onClose: () {
                     _confirmarFechamentoProjeto(context, viewModel);
@@ -119,7 +120,9 @@ class EditorPage extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) {
-          return ProImageEditorPage(imagePath: imagePath);
+          return ProImageEditorPage(
+            imagePath: imagePath,
+          );
         },
       ),
     );
@@ -148,16 +151,18 @@ class EditorPage extends StatelessWidget {
     if (projectId == null) return;
 
     await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
-      id: projectId,
-      editedImagePath: editedPath,
-    );
+          id: projectId,
+          editedImagePath: editedPath,
+        );
 
     viewModel.marcarImagemEditadaComoSalva(editedPath);
 
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Imagem editada salva no projeto.')),
+      const SnackBar(
+        content: Text('Imagem editada salva no projeto.'),
+      ),
     );
   }
 
@@ -186,28 +191,9 @@ class EditorPage extends StatelessWidget {
         return;
 
       case UnsavedChangesAction.save:
-        await _salvarProjetoAberto(context, editorViewModel);
-
-        if (!context.mounted) return;
-
+        editorViewModel.marcarComoSalvo();
         editorViewModel.fecharProjeto();
         return;
     }
-  }
-
-  Future<void> _salvarProjetoAberto(
-    BuildContext context,
-    EditorViewModel editorViewModel,
-  ) async {
-    final projectId = editorViewModel.projectId;
-
-    if (projectId == null) return;
-
-    await context.read<ProjectViewModel>().atualizarEstadoDoProjeto(
-      id: projectId,
-      editorState: editorViewModel.estadoAtual,
-    );
-
-    editorViewModel.marcarComoSalvo();
   }
 }
