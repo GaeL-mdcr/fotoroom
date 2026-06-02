@@ -15,8 +15,7 @@ class ExportDialogWidget extends StatelessWidget {
         final possuiImagemFinal =
             imagePath != null && imagePath.trim().isNotEmpty;
 
-        final podeExportar =
-            possuiImagemFinal &&
+        final podeExportar = possuiImagemFinal &&
             !exportViewModel.exportando &&
             !exportViewModel.compartilhando;
 
@@ -27,7 +26,10 @@ class ExportDialogWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!possuiImagemFinal) ...[
-                  const Icon(Icons.info_outline, size: 40),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 40,
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Para exportar, primeiro edite a imagem e confirme no editor.',
@@ -40,10 +42,13 @@ class ExportDialogWidget extends StatelessWidget {
                   ),
                 ],
                 if (possuiImagemFinal) ...[
-                  const Icon(Icons.image_outlined, size: 40),
+                  const Icon(
+                    Icons.image_outlined,
+                    size: 40,
+                  ),
                   const SizedBox(height: 12),
                   const Text(
-                    'A imagem final será exportada em JPG.',
+                    'A imagem final será preparada em JPG para exportação.',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -55,7 +60,10 @@ class ExportDialogWidget extends StatelessWidget {
                 ],
                 if (exportViewModel.caminhoArquivoExportado != null) ...[
                   const SizedBox(height: 12),
-                  const Icon(Icons.check_circle_outline, size: 40),
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 40,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Arquivo pronto:\n${exportViewModel.caminhoArquivoExportado}',
@@ -67,7 +75,9 @@ class ExportDialogWidget extends StatelessWidget {
                   Text(
                     exportViewModel.mensagemErro!,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ],
               ],

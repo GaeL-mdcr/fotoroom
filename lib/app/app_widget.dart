@@ -6,8 +6,8 @@ import '../models/app_settings_model.dart';
 import '../repositories/project_local_repository.dart';
 import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
+import '../services/image_export_service.dart';
 import '../services/image_picker_service.dart';
-import '../services/image_render_service.dart';
 import '../services/project_rules_service.dart';
 import '../services/share_service.dart';
 import '../viewmodels/editor_view_model.dart';
@@ -45,7 +45,9 @@ class AppWidget extends StatelessWidget {
         ),
         ChangeNotifierProvider<ExportViewModel>(
           create: (_) => ExportViewModel(
-            ImageRenderService(),
+            ImageExportService(
+              FileStorageService(),
+            ),
             ShareService(),
             ExportRulesService(),
           ),

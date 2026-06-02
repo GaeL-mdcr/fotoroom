@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/export_config_model.dart';
 import '../services/export_rules_service.dart';
-import '../services/image_render_service.dart';
+import '../services/image_export_service.dart';
 import '../services/share_service.dart';
 
 class ExportViewModel extends ChangeNotifier {
-  final ImageRenderService _imageRenderService;
+  final ImageExportService _imageExportService;
   final ShareService _shareService;
   final ExportRulesService _exportRulesService;
-
-  ExportConfigModel _configuracao = const ExportConfigModel();
 
   bool _exportando = false;
   bool _compartilhando = false;
@@ -19,12 +16,10 @@ class ExportViewModel extends ChangeNotifier {
   String? _mensagemErro;
 
   ExportViewModel(
-    this._imageRenderService,
+    this._imageExportService,
     this._shareService,
     this._exportRulesService,
   );
-
-  ExportConfigModel get configuracao => _configuracao;
 
   bool get exportando => _exportando;
   bool get compartilhando => _compartilhando;
@@ -34,31 +29,11 @@ class ExportViewModel extends ChangeNotifier {
 
   bool get possuiArquivoExportado => _caminhoArquivoExportado != null;
 
-  void alterarFormato(ExportImageFormat formato) {
-    _configuracao = _configuracao.copyWith(format: formato);
-    _caminhoArquivoExportado = null;
-    _mensagemErro = null;
-
-    notifyListeners();
-  }
-
-  void alterarQualidade(int qualidade) {
-    final qualidadeAjustada = _exportRulesService.normalizarQualidade(
-      qualidade,
-    );
-
-    _configuracao = _configuracao.copyWith(quality: qualidadeAjustada);
-
-    _caminhoArquivoExportado = null;
-    _mensagemErro = null;
-
-    notifyListeners();
-  }
-
-  Future<void> exportarImagem({required String imagePath}) async {
+  Future exportarImagem({
+    required String imagePath,
+  }) async {
     final validacao = _exportRulesService.validarExportacao(
       imagePath: imagePath,
-      exportConfig: _configuracao,
     );
 
     if (validacao.isFailure) {
@@ -73,21 +48,20 @@ class ExportViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final caminho = await _imageRenderService.exportarImagem(
+      final caminho = await _imageExportService.exportarImagemJpg(
         imagePath: imagePath,
-        exportConfig: _configuracao,
       );
 
       _caminhoArquivoExportado = caminho;
     } catch (_) {
-      _mensagemErro = 'Não foi possível exportar a imagem.';
+      _mensagemErro = 'Não foi possível preparar a imagem para exportação.';
     }
 
     _exportando = false;
     notifyListeners();
   }
 
-  Future<void> compartilharArquivoExportado() async {
+  Future compartilharArquivoExportado() async {
     final caminho = _caminhoArquivoExportado;
 
     if (caminho == null) {
