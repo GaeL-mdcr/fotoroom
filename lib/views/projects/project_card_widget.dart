@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../models/project_model.dart';
@@ -18,86 +20,117 @@ class ProjectCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagePath = project.thumbnailPath ?? project.currentImagePath;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.image_outlined,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  size: 36,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _ProjectImage(imagePath: imagePath),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: _ProjectMenuButton(
+                      onRename: onRename,
+                      onDelete: onDelete,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                project.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Imagem: ${project.currentImagePath}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Atualizado em: ${project.updatedAt.toString().split('.').first}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
               ),
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'rename') {
-                    onRename();
-                  }
-
-                  if (value == 'delete') {
-                    onDelete();
-                  }
-                },
-                itemBuilder: (context) {
-                  return const [
-                    PopupMenuItem(
-                      value: 'rename',
-                      child: Text('Renomear'),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Excluir'),
-                    ),
-                  ];
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-// Project card widget file
+
+class _ProjectImage extends StatelessWidget {
+  final String imagePath;
+
+  const _ProjectImage({
+    required this.imagePath,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final file = File(imagePath);
+
+    return Image.file(
+      file,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Icon(
+            Icons.image_outlined,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            size: 36,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ProjectMenuButton extends StatelessWidget {
+  final VoidCallback onRename;
+  final VoidCallback onDelete;
+
+  const _ProjectMenuButton({
+    required this.onRename,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      shape: const CircleBorder(),
+      child: PopupMenuButton(
+        icon: const Icon(Icons.more_vert),
+        tooltip: 'Opções do projeto',
+        onSelected: (value) {
+          if (value == 'rename') {
+            onRename();
+          }
+
+          if (value == 'delete') {
+            onDelete();
+          }
+        },
+        itemBuilder: (context) {
+          return const [
+            PopupMenuItem(
+              value: 'rename',
+              child: Text('Renomear'),
+            ),
+            PopupMenuItem(
+              value: 'delete',
+              child: Text('Excluir'),
+            ),
+          ];
+        },
+      ),
+    );
+  }
+}

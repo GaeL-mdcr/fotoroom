@@ -36,15 +36,24 @@ class ProjectsPage extends StatelessWidget {
             return const AppEmptyStateWidget(
               icon: Icons.folder_open_outlined,
               title: 'Nenhum projeto salvo',
-              message: 'Toque em Novo para criar um projeto a partir de uma imagem.',
+              message:
+                  'Toque em Novo para criar um projeto a partir de uma imagem.',
             );
           }
 
-          return ListView.builder(
+          final projetos = viewModel.projetos;
+
+          return GridView.builder(
             padding: const EdgeInsets.all(AppSpacing.medium),
-            itemCount: viewModel.projetos.length,
+            itemCount: projetos.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 0.72,
+            ),
             itemBuilder: (context, index) {
-              final projeto = viewModel.projetos[index];
+              final projeto = projetos[index];
 
               return ProjectCardWidget(
                 project: projeto,
@@ -61,7 +70,9 @@ class ProjectsPage extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Projeto "${projeto.name}" aberto no editor.'),
+                      content: Text(
+                        'Projeto "${projeto.name}" aberto no editor.',
+                      ),
                     ),
                   );
 

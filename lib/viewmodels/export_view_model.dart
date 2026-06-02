@@ -9,7 +9,6 @@ class ExportViewModel extends ChangeNotifier {
   final ShareService _shareService;
   final ExportRulesService _exportRulesService;
 
-  bool _exportando = false;
   bool _compartilhando = false;
 
   String? _caminhoArquivoExportado;
@@ -21,17 +20,23 @@ class ExportViewModel extends ChangeNotifier {
     this._exportRulesService,
   );
 
-  bool get exportando => _exportando;
   bool get compartilhando => _compartilhando;
 
+  bool get exportando => _compartilhando;
+
   String? get caminhoArquivoExportado => _caminhoArquivoExportado;
+
   String? get mensagemErro => _mensagemErro;
 
   bool get possuiArquivoExportado => _caminhoArquivoExportado != null;
 
-  Future exportarImagem({
+  Future<bool> compartilharImagem({
     required String imagePath,
   }) async {
+    if (_compartilhando) {
+      return false;
+    }
+
     final validacao = _exportRulesService.validarExportacao(
       imagePath: imagePath,
     );
@@ -39,35 +44,55 @@ class ExportViewModel extends ChangeNotifier {
     if (validacao.isFailure) {
       _mensagemErro = validacao.error;
       notifyListeners();
-      return;
+      return false;
     }
 
-    _exportando = true;
+    _compartilhando = true;
     _mensagemErro = null;
-    _caminhoArquivoExportado = null;
     notifyListeners();
 
     try {
-      final caminho = await _imageExportService.exportarImagemJpg(
+      final caminhoExportado = await _imageExportService.exportarImagemJpg(
         imagePath: imagePath,
       );
 
-      _caminhoArquivoExportado = caminho;
-    } catch (_) {
-      _mensagemErro = 'Não foi possível preparar a imagem para exportação.';
-    }
+      _caminhoArquivoExportado = caminhoExportado;
 
-    _exportando = false;
-    notifyListeners();
+      final sucesso = await _shareService.compartilharArquivo(
+        caminhoExportado,
+      );
+
+      if (!sucesso) {
+        _mensagemErro = 'Não foi possível compartilhar a imagem.';
+      }
+
+      return sucesso;
+    } catch (_) {
+      _mensagemErro = 'Erro ao compartilhar a imagem.';
+      return false;
+    } finally {
+      _compartilhando = false;
+      notifyListeners();
+    }
   }
 
-  Future compartilharArquivoExportado() async {
+  Future<void> exportarImagem({
+    required String imagePath,
+  }) async {
+    await compartilharImagem(imagePath: imagePath);
+  }
+
+  Future<bool> compartilharArquivoExportado() async {
     final caminho = _caminhoArquivoExportado;
 
     if (caminho == null) {
-      _mensagemErro = 'Nenhum arquivo exportado para compartilhar.';
+      _mensagemErro = 'Nenhuma imagem disponível para compartilhar.';
       notifyListeners();
-      return;
+      return false;
+    }
+
+    if (_compartilhando) {
+      return false;
     }
 
     _compartilhando = true;
@@ -78,20 +103,22 @@ class ExportViewModel extends ChangeNotifier {
       final sucesso = await _shareService.compartilharArquivo(caminho);
 
       if (!sucesso) {
-        _mensagemErro = 'Não foi possível compartilhar o arquivo.';
+        _mensagemErro = 'Não foi possível compartilhar a imagem.';
       }
-    } catch (_) {
-      _mensagemErro = 'Erro ao compartilhar o arquivo.';
-    }
 
-    _compartilhando = false;
-    notifyListeners();
+      return sucesso;
+    } catch (_) {
+      _mensagemErro = 'Erro ao compartilhar a imagem.';
+      return false;
+    } finally {
+      _compartilhando = false;
+      notifyListeners();
+    }
   }
 
   void limparResultado() {
     _caminhoArquivoExportado = null;
     _mensagemErro = null;
-    _exportando = false;
     _compartilhando = false;
 
     notifyListeners();

@@ -102,10 +102,13 @@ class FileStorageService {
 
     final exportsDirectory = await _obterDiretorioDeExportacoes();
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
     final exportedFile = File(
-      '${exportsDirectory.path}/fotoroom_export_$timestamp.jpg',
+      '${exportsDirectory.path}/fotoroom_compartilhamento.jpg',
     );
+
+    if (await exportedFile.exists()) {
+      await exportedFile.delete();
+    }
 
     await sourceFile.copy(exportedFile.path);
 

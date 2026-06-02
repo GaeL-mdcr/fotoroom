@@ -8,8 +8,8 @@ import '../../common/dialogs/save_edited_image_dialog.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
 import '../../viewmodels/editor_view_model.dart';
+import '../../viewmodels/export_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
-import '../export/export_dialog_widget.dart';
 import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
 import 'pro_image_editor_page.dart';
@@ -19,9 +19,9 @@ class EditorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<EditorViewModel>(
-      builder: (context, viewModel, child) {
-        if (!viewModel.possuiProjetoAberto) {
+    return Consumer2<EditorViewModel, ExportViewModel>(
+      builder: (context, editorViewModel, exportViewModel, child) {
+        if (!editorViewModel.possuiProjetoAberto) {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Editor'),
@@ -42,16 +42,24 @@ class EditorPage extends StatelessWidget {
               IconButton(
                 tooltip: 'Editar imagem',
                 onPressed: () {
-                  _abrirEditorDeImagem(context, viewModel);
+                  _abrirEditorDeImagem(context, editorViewModel);
                 },
                 icon: const Icon(Icons.tune),
               ),
               IconButton(
-                tooltip: 'Exportar imagem',
-                onPressed: () {
-                  _mostrarDialogoExportacao(context);
-                },
-                icon: const Icon(Icons.ios_share),
+                tooltip: 'Compartilhar imagem',
+                onPressed: exportViewModel.compartilhando
+                    ? null
+                    : () {
+                        _compartilharImagem(context, editorViewModel);
+                      },
+                icon: exportViewModel.compartilhando
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.share),
               ),
             ],
           ),
@@ -61,36 +69,44 @@ class EditorPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 EditorProjectHeaderWidget(
-                  projectName: viewModel.projectName ?? 'Projeto sem nome',
-                  imagePath: viewModel.currentImagePath ?? 'Imagem não informada',
-                  hasUnsavedChanges: viewModel.possuiAlteracoesNaoSalvas,
+                  projectName: editorViewModel.projectName ?? 'Projeto sem nome',
+                  imagePath:
+                      editorViewModel.currentImagePath ?? 'Imagem não informada',
+                  hasUnsavedChanges:
+                      editorViewModel.possuiAlteracoesNaoSalvas,
                   onClose: () {
-                    _confirmarFechamentoProjeto(context, viewModel);
+                    _confirmarFechamentoProjeto(context, editorViewModel);
                   },
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 EditorPreviewWidget(
                   key: ValueKey(
-                    'preview_${viewModel.currentImagePath}_${viewModel.previewVersion}',
+                    'preview_${editorViewModel.currentImagePath}_${editorViewModel.previewVersion}',
                   ),
-                  imagePath: viewModel.currentImagePath,
-                  imageBytes: viewModel.imagemEditadaBytes,
+                  imagePath: editorViewModel.currentImagePath,
+                  imageBytes: editorViewModel.imagemEditadaBytes,
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 FilledButton.icon(
                   onPressed: () {
-                    _abrirEditorDeImagem(context, viewModel);
+                    _abrirEditorDeImagem(context, editorViewModel);
                   },
                   icon: const Icon(Icons.tune),
                   label: const Text('Editar imagem'),
                 ),
                 const SizedBox(height: AppSpacing.small),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    _mostrarDialogoExportacao(context);
-                  },
-                  icon: const Icon(Icons.ios_share),
-                  label: const Text('Exportar ou compartilhar'),
+                  onPressed: exportViewModel.compartilhando
+                      ? null
+                      : () {
+                          _compartilharImagem(context, editorViewModel);
+                        },
+                  icon: const Icon(Icons.share),
+                  label: Text(
+                    exportViewModel.compartilhando
+                        ? 'Compartilhando...'
+                        : 'Compartilhar imagem',
+                  ),
                 ),
               ],
             ),
@@ -100,20 +116,47 @@ class EditorPage extends StatelessWidget {
     );
   }
 
-  void _mostrarDialogoExportacao(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const ExportDialogWidget();
-      },
+  Future<void> _compartilharImagem(
+    BuildContext context,
+    EditorViewModel editorViewModel,
+  ) async {
+    final imagePath = editorViewModel.currentImagePath;
+
+    if (imagePath == null || imagePath.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nenhuma imagem disponível para compartilhar.'),
+        ),
+      );
+
+      return;
+    }
+
+    final exportViewModel = context.read<ExportViewModel>();
+
+    final sucesso = await exportViewModel.compartilharImagem(
+      imagePath: imagePath,
+    );
+
+    if (!context.mounted) return;
+
+    final mensagem = sucesso
+        ? 'Compartilhamento solicitado.'
+        : exportViewModel.mensagemErro ??
+            'Não foi possível compartilhar a imagem.';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+      ),
     );
   }
 
   Future<void> _abrirEditorDeImagem(
     BuildContext context,
-    EditorViewModel viewModel,
+    EditorViewModel editorViewModel,
   ) async {
-    final imagePath = viewModel.currentImagePath;
+    final imagePath = editorViewModel.currentImagePath;
 
     if (imagePath == null || imagePath.trim().isEmpty) {
       return;
@@ -142,16 +185,16 @@ class EditorPage extends StatelessWidget {
 
     final saveMode = await showSaveEditedImageDialog(
       context: context,
-      hasEditedImage: viewModel.possuiImagemEditadaSalva,
+      hasEditedImage: editorViewModel.possuiImagemEditadaSalva,
     );
 
     if (!context.mounted || saveMode == SaveEditedImageMode.cancel) {
       return;
     }
 
-    viewModel.definirImagemEditada(bytes);
+    editorViewModel.definirImagemEditada(bytes);
 
-    final editedPath = await viewModel.salvarImagemEditadaEmArquivo(
+    final editedPath = await editorViewModel.salvarImagemEditadaEmArquivo(
       createNewFile: saveMode == SaveEditedImageMode.createNewFile,
     );
 
@@ -159,7 +202,7 @@ class EditorPage extends StatelessWidget {
 
     debugPrint('Imagem editada salva em: $editedPath');
 
-    final projectId = viewModel.projectId;
+    final projectId = editorViewModel.projectId;
 
     if (projectId == null) return;
 
@@ -168,7 +211,7 @@ class EditorPage extends StatelessWidget {
           editedImagePath: editedPath,
         );
 
-    viewModel.marcarImagemEditadaComoSalva(editedPath);
+    editorViewModel.marcarImagemEditadaComoSalva(editedPath);
 
     if (!context.mounted) return;
 

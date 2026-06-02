@@ -15,7 +15,6 @@ class ShareService {
     }
 
     final params = ShareParams(
-      text: 'Imagem editada no FotoRoom',
       files: [
         XFile(filePath),
       ],
