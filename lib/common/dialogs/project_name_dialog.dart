@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future showProjectNameDialog({
+Future<String?> showProjectNameDialog({
   required BuildContext context,
   required String title,
   required String confirmLabel,
@@ -45,10 +45,7 @@ Future showProjectNameDialog({
             },
             child: const Text('Cancelar'),
           ),
-          FilledButton(
-            onPressed: confirmar,
-            child: Text(confirmLabel),
-          ),
+          FilledButton(onPressed: confirmar, child: Text(confirmLabel)),
         ],
       );
     },

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:share_plus/share_plus.dart';
 
 class ShareService {
-  Future compartilharArquivo(String filePath) async {
+  Future<bool> compartilharArquivo(String filePath) async {
     if (filePath.trim().isEmpty) {
       return false;
     }
@@ -14,11 +14,7 @@ class ShareService {
       return false;
     }
 
-    final params = ShareParams(
-      files: [
-        XFile(filePath),
-      ],
-    );
+    final params = ShareParams(files: [XFile(filePath)]);
 
     final result = await SharePlus.instance.share(params);
 

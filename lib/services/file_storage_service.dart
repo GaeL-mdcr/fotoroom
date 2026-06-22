@@ -4,11 +4,11 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 
 class FileStorageService {
-  Future _obterDiretorioBase() async {
+  Future<Directory> _obterDiretorioBase() async {
     return getApplicationDocumentsDirectory();
   }
 
-  Future _obterDiretorioDoFotoRoom() async {
+  Future<Directory> _obterDiretorioDoFotoRoom() async {
     final baseDirectory = await _obterDiretorioBase();
 
     final directory = Directory('${baseDirectory.path}/fotoroom');
@@ -20,7 +20,7 @@ class FileStorageService {
     return directory;
   }
 
-  Future _obterDiretorioDoProjeto(String projectId) async {
+  Future<Directory> _obterDiretorioDoProjeto(String projectId) async {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
     final projectDirectory = Directory(
@@ -34,12 +34,10 @@ class FileStorageService {
     return projectDirectory;
   }
 
-  Future _obterDiretorioDeExportacoes() async {
+  Future<Directory> _obterDiretorioDeExportacoes() async {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
-    final exportsDirectory = Directory(
-      '${fotoroomDirectory.path}/exports',
-    );
+    final exportsDirectory = Directory('${fotoroomDirectory.path}/exports');
 
     if (!await exportsDirectory.exists()) {
       await exportsDirectory.create(recursive: true);
@@ -48,7 +46,7 @@ class FileStorageService {
     return exportsDirectory;
   }
 
-  Future salvarImagemOriginal({
+  Future<String> salvarImagemOriginal({
     required String projectId,
     required String sourceImagePath,
   }) async {
@@ -70,7 +68,7 @@ class FileStorageService {
     return destinationFile.path;
   }
 
-  Future salvarImagemEditada({
+  Future<String> salvarImagemEditada({
     required String projectId,
     required Uint8List bytes,
     required bool createNewFile,
@@ -83,17 +81,12 @@ class FileStorageService {
 
     final file = File('${projectDirectory.path}/$fileName');
 
-    await file.writeAsBytes(
-      bytes,
-      flush: true,
-    );
+    await file.writeAsBytes(bytes, flush: true);
 
     return file.path;
   }
 
-  Future exportarImagemJpg({
-    required String imagePath,
-  }) async {
+  Future<String> exportarImagemJpg({required String imagePath}) async {
     final sourceFile = File(imagePath);
 
     if (!await sourceFile.exists()) {
@@ -115,7 +108,7 @@ class FileStorageService {
     return exportedFile.path;
   }
 
-  Future salvarArquivoInterno({
+  Future<String> salvarArquivoInterno({
     required String nomeArquivo,
     required String conteudo,
   }) async {
@@ -127,7 +120,7 @@ class FileStorageService {
     return file.path;
   }
 
-  Future lerArquivoInterno(String nomeArquivo) async {
+  Future<String?> lerArquivoInterno(String nomeArquivo) async {
     final directory = await _obterDiretorioDoFotoRoom();
     final file = File('${directory.path}/$nomeArquivo');
 
@@ -138,7 +131,7 @@ class FileStorageService {
     return file.readAsString();
   }
 
-  Future excluirArquivoInterno(String nomeArquivo) async {
+  Future<void> excluirArquivoInterno(String nomeArquivo) async {
     final directory = await _obterDiretorioDoFotoRoom();
     final file = File('${directory.path}/$nomeArquivo');
 
@@ -149,7 +142,7 @@ class FileStorageService {
     await file.delete();
   }
 
-  Future excluirDiretorioDoProjeto(String projectId) async {
+  Future<void> excluirDiretorioDoProjeto(String projectId) async {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
     final projectDirectory = Directory(
