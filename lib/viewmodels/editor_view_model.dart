@@ -21,6 +21,7 @@ class EditorViewModel extends ChangeNotifier {
   Uint8List? _imagemEditadaBytes;
 
   bool _possuiAlteracoesNaoSalvas = false;
+  bool _modoEdicaoAtivo = false;
   int _previewVersion = 0;
 
   String? get projectId => _projectId;
@@ -34,6 +35,7 @@ class EditorViewModel extends ChangeNotifier {
 
   bool get possuiProjetoAberto => _projectId != null;
   bool get possuiAlteracoesNaoSalvas => _possuiAlteracoesNaoSalvas;
+  bool get modoEdicaoAtivo => _modoEdicaoAtivo;
 
   bool get possuiImagemEditadaEmMemoria => _imagemEditadaBytes != null;
 
@@ -53,6 +55,7 @@ class EditorViewModel extends ChangeNotifier {
 
     _imagemEditadaBytes = null;
     _possuiAlteracoesNaoSalvas = false;
+    _modoEdicaoAtivo = false;
     _previewVersion++;
 
     notifyListeners();
@@ -66,8 +69,19 @@ class EditorViewModel extends ChangeNotifier {
 
     _imagemEditadaBytes = null;
     _possuiAlteracoesNaoSalvas = false;
+    _modoEdicaoAtivo = false;
     _previewVersion++;
 
+    notifyListeners();
+  }
+
+  void iniciarModoEdicao() {
+    _modoEdicaoAtivo = true;
+    notifyListeners();
+  }
+
+  void fecharModoEdicao() {
+    _modoEdicaoAtivo = false;
     notifyListeners();
   }
 

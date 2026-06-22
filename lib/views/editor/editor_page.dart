@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,9 +23,7 @@ class EditorPage extends StatelessWidget {
       builder: (context, editorViewModel, exportViewModel, child) {
         if (!editorViewModel.possuiProjetoAberto) {
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Editor'),
-            ),
+            appBar: AppBar(title: const Text('Editor')),
             body: const AppEmptyStateWidget(
               icon: Icons.edit_outlined,
               title: 'Nenhum projeto aberto',
@@ -40,7 +40,7 @@ class EditorPage extends StatelessWidget {
               IconButton(
                 tooltip: 'Editar imagem',
                 onPressed: () {
-                  _abrirEditorDeImagem(context, editorViewModel);
+                  editorViewModel.iniciarModoEdicao();
                 },
                 icon: const Icon(Icons.tune),
               ),
@@ -61,53 +61,83 @@ class EditorPage extends StatelessWidget {
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                EditorProjectHeaderWidget(
-                  projectName: editorViewModel.projectName ?? 'Projeto sem nome',
-                  imagePath:
-                      editorViewModel.currentImagePath ?? 'Imagem não informada',
-                  hasUnsavedChanges:
-                      editorViewModel.possuiAlteracoesNaoSalvas,
-                  onClose: () {
-                    _confirmarFechamentoProjeto(context, editorViewModel);
+          body: Builder(
+            builder: (context) {
+              if (editorViewModel.modoEdicaoAtivo) {
+                final imagePath = editorViewModel.currentImagePath;
+
+                if (imagePath == null || imagePath.trim().isEmpty) {
+                  return const AppEmptyStateWidget(
+                    icon: Icons.image_not_supported_outlined,
+                    title: 'Imagem indisponível',
+                    message: 'Não foi possível carregar a imagem do projeto.',
+                  );
+                }
+
+                final imageEditorAdapter = context.read<ImageEditorAdapter>();
+
+                return imageEditorAdapter.buildEditor(
+                  imagePath: imagePath,
+                  onImageEditingComplete: (bytes) {
+                    _processarImagemEditada(context, editorViewModel, bytes);
                   },
-                ),
-                const SizedBox(height: AppSpacing.medium),
-                EditorPreviewWidget(
-                  key: ValueKey(
-                    'preview_${editorViewModel.currentImagePath}_${editorViewModel.previewVersion}',
-                  ),
-                  imagePath: editorViewModel.currentImagePath,
-                  imageBytes: editorViewModel.imagemEditadaBytes,
-                ),
-                const SizedBox(height: AppSpacing.medium),
-                FilledButton.icon(
-                  onPressed: () {
-                    _abrirEditorDeImagem(context, editorViewModel);
+                  onCloseEditor: () {
+                    editorViewModel.fecharModoEdicao();
                   },
-                  icon: const Icon(Icons.tune),
-                  label: const Text('Editar imagem'),
+                );
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.medium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    EditorProjectHeaderWidget(
+                      projectName:
+                          editorViewModel.projectName ?? 'Projeto sem nome',
+                      imagePath:
+                          editorViewModel.currentImagePath ??
+                          'Imagem não informada',
+                      hasUnsavedChanges:
+                          editorViewModel.possuiAlteracoesNaoSalvas,
+                      onClose: () {
+                        _confirmarFechamentoProjeto(context, editorViewModel);
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.medium),
+                    EditorPreviewWidget(
+                      key: ValueKey(
+                        'preview_${editorViewModel.currentImagePath}_${editorViewModel.previewVersion}',
+                      ),
+                      imagePath: editorViewModel.currentImagePath,
+                      imageBytes: editorViewModel.imagemEditadaBytes,
+                    ),
+                    const SizedBox(height: AppSpacing.medium),
+                    FilledButton.icon(
+                      onPressed: () {
+                        editorViewModel.iniciarModoEdicao();
+                      },
+                      icon: const Icon(Icons.tune),
+                      label: const Text('Editar imagem'),
+                    ),
+                    const SizedBox(height: AppSpacing.small),
+                    OutlinedButton.icon(
+                      onPressed: exportViewModel.compartilhando
+                          ? null
+                          : () {
+                              _compartilharImagem(context, editorViewModel);
+                            },
+                      icon: const Icon(Icons.share),
+                      label: Text(
+                        exportViewModel.compartilhando
+                            ? 'Compartilhando...'
+                            : 'Compartilhar imagem',
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.small),
-                OutlinedButton.icon(
-                  onPressed: exportViewModel.compartilhando
-                      ? null
-                      : () {
-                          _compartilharImagem(context, editorViewModel);
-                        },
-                  icon: const Icon(Icons.share),
-                  label: Text(
-                    exportViewModel.compartilhando
-                        ? 'Compartilhando...'
-                        : 'Compartilhar imagem',
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
@@ -141,41 +171,29 @@ class EditorPage extends StatelessWidget {
     final mensagem = sucesso
         ? 'Compartilhamento solicitado.'
         : exportViewModel.mensagemErro ??
-            'Não foi possível compartilhar a imagem.';
+              'Não foi possível compartilhar a imagem.';
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensagem)));
   }
 
-  Future<void> _abrirEditorDeImagem(
+  Future<void> _processarImagemEditada(
     BuildContext context,
     EditorViewModel editorViewModel,
+    Uint8List bytes,
   ) async {
-    final imagePath = editorViewModel.currentImagePath;
-
-    if (imagePath == null || imagePath.trim().isEmpty) {
+    if (!context.mounted) {
       return;
     }
 
-    final imageEditorAdapter = context.read<ImageEditorAdapter>();
-
-    final bytes = await imageEditorAdapter.editarImagem(
-      context: context,
-      imagePath: imagePath,
-    );
-
-    if (!context.mounted || bytes == null) return;
-
     debugPrint('EditorPage recebeu imagem editada: ${bytes.length} bytes');
 
-    await Future.delayed(
-      const Duration(milliseconds: 200),
-    );
+    await Future.delayed(const Duration(milliseconds: 200));
 
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
     final saveMode = await showSaveEditedImageDialog(
       context: context,
@@ -183,6 +201,7 @@ class EditorPage extends StatelessWidget {
     );
 
     if (!context.mounted || saveMode == SaveEditedImageMode.cancel) {
+      editorViewModel.fecharModoEdicao();
       return;
     }
 
@@ -194,34 +213,35 @@ class EditorPage extends StatelessWidget {
       );
 
       if (!context.mounted || editedPath == null) {
+        editorViewModel.fecharModoEdicao();
         return;
       }
-
-      debugPrint('Imagem editada salva em: $editedPath');
 
       final projectId = editorViewModel.projectId;
 
       if (projectId == null) {
+        editorViewModel.fecharModoEdicao();
         return;
       }
 
       await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
-            id: projectId,
-            editedImagePath: editedPath,
-          );
+        id: projectId,
+        editedImagePath: editedPath,
+      );
 
       editorViewModel.marcarImagemEditadaComoSalva(editedPath);
+      editorViewModel.fecharModoEdicao();
 
       if (!context.mounted) {
         return;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Imagem editada salva no projeto.'),
-        ),
+        const SnackBar(content: Text('Imagem editada salva no projeto.')),
       );
     } catch (_) {
+      editorViewModel.fecharModoEdicao();
+
       if (!context.mounted) {
         return;
       }
