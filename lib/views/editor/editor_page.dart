@@ -13,6 +13,7 @@ import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/export_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
+import 'editor_actions_widget.dart';
 import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
 
@@ -115,26 +116,12 @@ class EditorPage extends StatelessWidget {
                       imageBytes: editorViewModel.imagemEditadaBytes,
                     ),
                     const SizedBox(height: AppSpacing.medium),
-                    FilledButton.icon(
-                      onPressed: () {
-                        editorViewModel.iniciarModoEdicao();
+                    EditorActionsWidget(
+                      compartilhando: exportViewModel.compartilhando,
+                      onEdit: editorViewModel.iniciarModoEdicao,
+                      onShare: () {
+                        _compartilharImagem(context, editorViewModel);
                       },
-                      icon: const Icon(Icons.tune),
-                      label: const Text('Editar imagem'),
-                    ),
-                    const SizedBox(height: AppSpacing.small),
-                    OutlinedButton.icon(
-                      onPressed: exportViewModel.compartilhando
-                          ? null
-                          : () {
-                              _compartilharImagem(context, editorViewModel);
-                            },
-                      icon: const Icon(Icons.share),
-                      label: Text(
-                        exportViewModel.compartilhando
-                            ? 'Compartilhando...'
-                            : 'Compartilhar imagem',
-                      ),
                     ),
                   ],
                 ),
@@ -152,7 +139,7 @@ class EditorPage extends StatelessWidget {
   ) async {
     final imagePath = editorViewModel.currentImagePath;
 
-    if (imagePath == null || imagePath.trim().isEmpty) {
+    if (!editorViewModel.possuiImagemAtual) {
       context.read<SystemMessageService>().mostrarErro(
         context: context,
         mensagem: 'Nenhuma imagem disponível para compartilhar.',
@@ -161,10 +148,16 @@ class EditorPage extends StatelessWidget {
       return;
     }
 
+    final caminhoImagem = imagePath;
+
+    if (caminhoImagem == null) {
+      return;
+    }
+
     final exportViewModel = context.read<ExportViewModel>();
 
     final sucesso = await exportViewModel.compartilharImagem(
-      imagePath: imagePath,
+      imagePath: caminhoImagem,
     );
 
     if (!context.mounted) return;

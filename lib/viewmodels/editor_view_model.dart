@@ -9,9 +9,7 @@ import '../services/file_storage_service.dart';
 class EditorViewModel extends ChangeNotifier {
   final FileStorageService _fileStorageService;
 
-  EditorViewModel(
-    this._fileStorageService,
-  );
+  EditorViewModel(this._fileStorageService);
 
   String? _projectId;
   String? _projectName;
@@ -45,6 +43,12 @@ class EditorViewModel extends ChangeNotifier {
 
   String? get currentImagePath {
     return _editedImagePath ?? _originalImagePath;
+  }
+
+  bool get possuiImagemAtual {
+    final imagePath = currentImagePath;
+
+    return imagePath != null && imagePath.trim().isNotEmpty;
   }
 
   void carregarProjeto(ProjectModel projeto) {
@@ -113,9 +117,7 @@ class EditorViewModel extends ChangeNotifier {
   }
 
   void marcarImagemEditadaComoSalva(String editedImagePath) {
-    final imageProvider = FileImage(
-      File(editedImagePath),
-    );
+    final imageProvider = FileImage(File(editedImagePath));
 
     imageProvider.evict();
 
