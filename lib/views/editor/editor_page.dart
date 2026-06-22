@@ -186,34 +186,52 @@ class EditorPage extends StatelessWidget {
       return;
     }
 
-    editorViewModel.definirImagemEditada(bytes);
+    try {
+      editorViewModel.definirImagemEditada(bytes);
 
-    final editedPath = await editorViewModel.salvarImagemEditadaEmArquivo(
-      createNewFile: saveMode == SaveEditedImageMode.createNewFile,
-    );
+      final editedPath = await editorViewModel.salvarImagemEditadaEmArquivo(
+        createNewFile: saveMode == SaveEditedImageMode.createNewFile,
+      );
 
-    if (!context.mounted || editedPath == null) return;
+      if (!context.mounted || editedPath == null) {
+        return;
+      }
 
-    debugPrint('Imagem editada salva em: $editedPath');
+      debugPrint('Imagem editada salva em: $editedPath');
 
-    final projectId = editorViewModel.projectId;
+      final projectId = editorViewModel.projectId;
 
-    if (projectId == null) return;
+      if (projectId == null) {
+        return;
+      }
 
-    await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
-          id: projectId,
-          editedImagePath: editedPath,
-        );
+      await context.read<ProjectViewModel>().atualizarImagemEditadaDoProjeto(
+            id: projectId,
+            editedImagePath: editedPath,
+          );
 
-    editorViewModel.marcarImagemEditadaComoSalva(editedPath);
+      editorViewModel.marcarImagemEditadaComoSalva(editedPath);
 
-    if (!context.mounted) return;
+      if (!context.mounted) {
+        return;
+      }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Imagem editada salva no projeto.'),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Imagem editada salva no projeto.'),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível salvar a imagem editada.'),
+        ),
+      );
+    }
   }
 
   Future<void> _confirmarFechamentoProjeto(
