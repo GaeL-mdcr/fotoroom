@@ -10,7 +10,6 @@ class ExportViewModel extends ChangeNotifier {
   final ExportRulesService _exportRulesService;
 
   bool _compartilhando = false;
-
   String? _mensagemErro;
 
   ExportViewModel(
@@ -23,7 +22,9 @@ class ExportViewModel extends ChangeNotifier {
 
   String? get mensagemErro => _mensagemErro;
 
-  Future<bool> compartilharImagem({required String imagePath}) async {
+  Future<bool> compartilharImagem({
+    required String imagePath,
+  }) async {
     if (_compartilhando) {
       return false;
     }
@@ -47,7 +48,9 @@ class ExportViewModel extends ChangeNotifier {
         imagePath: imagePath,
       );
 
-      final sucesso = await _shareService.compartilharArquivo(caminhoExportado);
+      final sucesso = await _shareService.compartilharArquivo(
+        caminhoExportado,
+      );
 
       if (!sucesso) {
         _mensagemErro = 'Não foi possível compartilhar a imagem.';
