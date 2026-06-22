@@ -69,11 +69,11 @@ class ProjectViewModel extends ChangeNotifier {
     try {
       final projetoTemporario = resultado.data!;
 
-      final caminhoInternoOriginal =
-          await _fileStorageService.salvarImagemOriginal(
-        projectId: projetoTemporario.id,
-        sourceImagePath: caminhoImagemOriginal,
-      );
+      final caminhoInternoOriginal = await _fileStorageService
+          .salvarImagemOriginal(
+            projectId: projetoTemporario.id,
+            sourceImagePath: caminhoImagemOriginal,
+          );
 
       final projeto = projetoTemporario.copyWith(
         originalImagePath: caminhoInternoOriginal,
@@ -98,14 +98,13 @@ class ProjectViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> criarProjetoComImagemSelecionada({
-    required String nome,
-  }) async {
+  Future<bool> criarProjetoComImagemSelecionada({required String nome}) async {
     _mensagemErro = null;
     notifyListeners();
 
     try {
-      final caminhoImagem = await _imagePickerService.selecionarImagemDaGaleria();
+      final caminhoImagem = await _imagePickerService
+          .selecionarImagemDaGaleria();
 
       if (caminhoImagem == null) {
         return false;
@@ -135,26 +134,18 @@ class ProjectViewModel extends ChangeNotifier {
   }
 
   Future<void> renomearProjeto(String id, String novoNome) async {
-    final index = _projetos.indexWhere(
-      (projeto) => projeto.id == id,
-    );
+    final projeto = _buscarProjetoPorId(id);
 
-    if (index == -1) return;
+    if (projeto == null) {
+      return;
+    }
 
-    final projetoAtualizado = _projetos[index].copyWith(
+    final projetoAtualizado = projeto.copyWith(
       name: novoNome,
       updatedAt: DateTime.now(),
     );
 
-    await _repository.salvarProjeto(projetoAtualizado);
-
-    _projetos = await _repository.listarProjetos();
-
-    if (_projetoSelecionado?.id == id) {
-      _projetoSelecionado = projetoAtualizado;
-    }
-
-    notifyListeners();
+    await _salvarProjetoERecarregar(projetoAtualizado);
   }
 
   Future<void> excluirProjeto(String id) async {
@@ -173,31 +164,45 @@ class ProjectViewModel extends ChangeNotifier {
     required String id,
     required String editedImagePath,
   }) async {
-    final index = _projetos.indexWhere(
-      (projeto) => projeto.id == id,
-    );
+    final projeto = _buscarProjetoPorId(id);
 
-    if (index == -1) return;
+    if (projeto == null) {
+      return;
+    }
 
-    final projetoAtualizado = _projetos[index].copyWith(
+    final projetoAtualizado = projeto.copyWith(
       editedImagePath: editedImagePath,
       thumbnailPath: editedImagePath,
       updatedAt: DateTime.now(),
     );
 
-    await _repository.salvarProjeto(projetoAtualizado);
-
-    _projetos = await _repository.listarProjetos();
-
-    if (_projetoSelecionado?.id == id) {
-      _projetoSelecionado = projetoAtualizado;
-    }
-
-    notifyListeners();
+    await _salvarProjetoERecarregar(projetoAtualizado);
   }
 
   void definirErro(String? mensagem) {
     _mensagemErro = mensagem;
+    notifyListeners();
+  }
+
+  ProjectModel? _buscarProjetoPorId(String id) {
+    for (final projeto in _projetos) {
+      if (projeto.id == id) {
+        return projeto;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> _salvarProjetoERecarregar(ProjectModel projeto) async {
+    await _repository.salvarProjeto(projeto);
+
+    _projetos = await _repository.listarProjetos();
+
+    if (_projetoSelecionado?.id == projeto.id) {
+      _projetoSelecionado = projeto;
+    }
+
     notifyListeners();
   }
 }

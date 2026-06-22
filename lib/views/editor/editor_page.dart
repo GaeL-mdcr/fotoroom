@@ -139,7 +139,7 @@ class EditorPage extends StatelessWidget {
   ) async {
     final imagePath = editorViewModel.currentImagePath;
 
-    if (!editorViewModel.possuiImagemAtual) {
+    if (!editorViewModel.possuiImagemAtual || imagePath == null) {
       context.read<SystemMessageService>().mostrarErro(
         context: context,
         mensagem: 'Nenhuma imagem disponível para compartilhar.',
@@ -148,16 +148,10 @@ class EditorPage extends StatelessWidget {
       return;
     }
 
-    final caminhoImagem = imagePath;
-
-    if (caminhoImagem == null) {
-      return;
-    }
-
     final exportViewModel = context.read<ExportViewModel>();
 
     final sucesso = await exportViewModel.compartilharImagem(
-      imagePath: caminhoImagem,
+      imagePath: imagePath,
     );
 
     if (!context.mounted) return;
@@ -238,7 +232,6 @@ class EditorPage extends StatelessWidget {
       );
 
       editorViewModel.marcarImagemEditadaComoSalva(editedPath);
-      editorViewModel.fecharModoEdicao();
 
       if (!context.mounted) {
         return;

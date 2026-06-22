@@ -42,13 +42,27 @@ class EditorViewModel extends ChangeNotifier {
   }
 
   String? get currentImagePath {
-    return _editedImagePath ?? _originalImagePath;
+    if (_editedImagePath != null && _editedImagePath!.trim().isNotEmpty) {
+      return _editedImagePath;
+    }
+
+    if (_originalImagePath != null && _originalImagePath!.trim().isNotEmpty) {
+      return _originalImagePath;
+    }
+
+    return null;
   }
 
   bool get possuiImagemAtual {
-    final imagePath = currentImagePath;
+    return currentImagePath != null;
+  }
 
-    return imagePath != null && imagePath.trim().isNotEmpty;
+  bool get podeEditarImagem {
+    return possuiProjetoAberto && possuiImagemAtual;
+  }
+
+  bool get podeCompartilharImagem {
+    return possuiProjetoAberto && possuiImagemAtual && !_modoEdicaoAtivo;
   }
 
   void carregarProjeto(ProjectModel projeto) {
@@ -57,9 +71,7 @@ class EditorViewModel extends ChangeNotifier {
     _originalImagePath = projeto.originalImagePath;
     _editedImagePath = projeto.editedImagePath;
 
-    _imagemEditadaBytes = null;
-    _possuiAlteracoesNaoSalvas = false;
-    _modoEdicaoAtivo = false;
+    _limparEstadoTemporarioDeEdicao();
     _previewVersion++;
 
     notifyListeners();
@@ -71,20 +83,26 @@ class EditorViewModel extends ChangeNotifier {
     _originalImagePath = null;
     _editedImagePath = null;
 
-    _imagemEditadaBytes = null;
-    _possuiAlteracoesNaoSalvas = false;
-    _modoEdicaoAtivo = false;
+    _limparEstadoTemporarioDeEdicao();
     _previewVersion++;
 
     notifyListeners();
   }
 
   void iniciarModoEdicao() {
+    if (_modoEdicaoAtivo || !podeEditarImagem) {
+      return;
+    }
+
     _modoEdicaoAtivo = true;
     notifyListeners();
   }
 
   void fecharModoEdicao() {
+    if (!_modoEdicaoAtivo) {
+      return;
+    }
+
     _modoEdicaoAtivo = false;
     notifyListeners();
   }
@@ -122,8 +140,7 @@ class EditorViewModel extends ChangeNotifier {
     imageProvider.evict();
 
     _editedImagePath = editedImagePath;
-    _imagemEditadaBytes = null;
-    _possuiAlteracoesNaoSalvas = false;
+    _limparEstadoTemporarioDeEdicao();
     _previewVersion++;
 
     notifyListeners();
@@ -133,5 +150,11 @@ class EditorViewModel extends ChangeNotifier {
     _possuiAlteracoesNaoSalvas = false;
 
     notifyListeners();
+  }
+
+  void _limparEstadoTemporarioDeEdicao() {
+    _imagemEditadaBytes = null;
+    _possuiAlteracoesNaoSalvas = false;
+    _modoEdicaoAtivo = false;
   }
 }
