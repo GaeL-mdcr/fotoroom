@@ -5,6 +5,9 @@ import '../common/app_colors.dart';
 import '../core/adapters/image_editor_adapter.dart';
 import '../models/app_settings_model.dart';
 import '../repositories/project_local_repository.dart';
+import '../repositories/project_repository.dart';
+import '../repositories/settings_local_repository.dart';
+import '../repositories/settings_repository.dart';
 import '../services/adapters/pro_image_editor_adapter.dart';
 import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
@@ -26,21 +29,35 @@ class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<ImageEditorAdapter>(
-          create: (_) => ProImageEditorAdapter(),
+        Provider<FileStorageService>(create: (_) => FileStorageService()),
+        Provider<SettingsRepository>(
+          create: (context) {
+            return SettingsLocalRepository(context.read<FileStorageService>());
+          },
         ),
-        Provider<SystemMessageService>(
-          create: (_) => SystemMessageService(),
+        Provider<ImagePickerService>(create: (_) => ImagePickerService()),
+        Provider<ProjectRulesService>(create: (_) => ProjectRulesService()),
+        Provider<ExportRulesService>(create: (_) => ExportRulesService()),
+        Provider<ShareService>(create: (_) => ShareService()),
+        Provider<SystemMessageService>(create: (_) => SystemMessageService()),
+        Provider<ImageEditorAdapter>(create: (_) => ProImageEditorAdapter()),
+        Provider<ImageExportService>(
+          create: (context) {
+            return ImageExportService(context.read<FileStorageService>());
+          },
+        ),
+        Provider<ProjectRepository>(
+          create: (context) {
+            return ProjectLocalRepository(context.read<FileStorageService>());
+          },
         ),
         ChangeNotifierProvider<ProjectViewModel>(
-          create: (_) {
-            final fileStorageService = FileStorageService();
-
+          create: (context) {
             final viewModel = ProjectViewModel(
-              ProjectLocalRepository(fileStorageService),
-              ImagePickerService(),
-              ProjectRulesService(),
-              fileStorageService,
+              context.read<ProjectRepository>(),
+              context.read<ImagePickerService>(),
+              context.read<ProjectRulesService>(),
+              context.read<FileStorageService>(),
             );
 
             viewModel.carregarProjetos();
@@ -49,21 +66,29 @@ class AppWidget extends StatelessWidget {
           },
         ),
         ChangeNotifierProvider<EditorViewModel>(
-          create: (_) => EditorViewModel(
-            FileStorageService(),
-          ),
+          create: (context) {
+            return EditorViewModel(context.read<FileStorageService>());
+          },
         ),
         ChangeNotifierProvider<ExportViewModel>(
-          create: (_) => ExportViewModel(
-            ImageExportService(
-              FileStorageService(),
-            ),
-            ShareService(),
-            ExportRulesService(),
-          ),
+          create: (context) {
+            return ExportViewModel(
+              context.read<ImageExportService>(),
+              context.read<ShareService>(),
+              context.read<ExportRulesService>(),
+            );
+          },
         ),
         ChangeNotifierProvider<SettingsViewModel>(
-          create: (_) => SettingsViewModel(),
+          create: (context) {
+            final viewModel = SettingsViewModel(
+              context.read<SettingsRepository>(),
+            );
+
+            viewModel.carregarConfiguracoes();
+
+            return viewModel;
+          },
         ),
       ],
       child: Consumer<SettingsViewModel>(

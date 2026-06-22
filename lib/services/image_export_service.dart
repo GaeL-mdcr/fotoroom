@@ -8,7 +8,7 @@ class ImageExportService {
   ImageExportService(this._fileStorageService);
 
   Future<String> exportarImagemJpg({required String imagePath}) async {
-    debugPrint('Exportando imagem JPG: $imagePath');
+    debugPrint('Preparando imagem JPG para compartilhamento: $imagePath');
 
     return _fileStorageService.exportarImagemJpg(imagePath: imagePath);
   }
