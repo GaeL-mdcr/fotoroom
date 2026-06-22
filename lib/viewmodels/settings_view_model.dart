@@ -17,6 +17,11 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void alterarMensagensDoSistema(bool valor) {
+    _configuracoes = _configuracoes.copyWith(showSystemMessages: valor);
+    notifyListeners();
+  }
+
   void restaurarPadrao() {
     _configuracoes = const AppSettingsModel();
     notifyListeners();

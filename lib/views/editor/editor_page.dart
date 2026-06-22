@@ -8,9 +8,11 @@ import '../../common/dialogs/save_edited_image_dialog.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
 import '../../core/adapters/image_editor_adapter.dart';
+import '../../services/system_message_service.dart';
 import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/export_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
+import '../../viewmodels/settings_view_model.dart';
 import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
 
@@ -151,10 +153,9 @@ class EditorPage extends StatelessWidget {
     final imagePath = editorViewModel.currentImagePath;
 
     if (imagePath == null || imagePath.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nenhuma imagem disponível para compartilhar.'),
-        ),
+      context.read<SystemMessageService>().mostrarErro(
+        context: context,
+        mensagem: 'Nenhuma imagem disponível para compartilhar.',
       );
 
       return;
@@ -173,9 +174,23 @@ class EditorPage extends StatelessWidget {
         : exportViewModel.mensagemErro ??
               'Não foi possível compartilhar a imagem.';
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(mensagem)));
+    final mensagensAtivas = context
+        .read<SettingsViewModel>()
+        .configuracoes
+        .showSystemMessages;
+
+    if (sucesso) {
+      context.read<SystemMessageService>().mostrarInformacao(
+        context: context,
+        mensagem: mensagem,
+        mensagensAtivas: mensagensAtivas,
+      );
+    } else {
+      context.read<SystemMessageService>().mostrarErro(
+        context: context,
+        mensagem: mensagem,
+      );
+    }
   }
 
   Future<void> _processarImagemEditada(
@@ -236,8 +251,15 @@ class EditorPage extends StatelessWidget {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Imagem editada salva no projeto.')),
+      final mensagensAtivas = context
+          .read<SettingsViewModel>()
+          .configuracoes
+          .showSystemMessages;
+
+      context.read<SystemMessageService>().mostrarInformacao(
+        context: context,
+        mensagem: 'Imagem editada salva no projeto.',
+        mensagensAtivas: mensagensAtivas,
       );
     } catch (_) {
       editorViewModel.fecharModoEdicao();
@@ -246,10 +268,9 @@ class EditorPage extends StatelessWidget {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível salvar a imagem editada.'),
-        ),
+      context.read<SystemMessageService>().mostrarErro(
+        context: context,
+        mensagem: 'Não foi possível salvar a imagem editada.',
       );
     }
   }

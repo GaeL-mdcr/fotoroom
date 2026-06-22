@@ -63,6 +63,16 @@ class SettingsPage extends StatelessWidget {
                 onChanged: viewModel.alterarHistoricoDeExportacao,
               ),
               const Divider(),
+              const AppSectionTitleWidget(title: 'Mensagens'),
+              SwitchListTile(
+                title: const Text('Mostrar mensagens do sistema'),
+                subtitle: const Text(
+                  'Exibe avisos simples após salvar, compartilhar ou concluir ações.',
+                ),
+                value: configuracoes.showSystemMessages,
+                onChanged: viewModel.alterarMensagensDoSistema,
+              ),
+              const Divider(),
               const AppSectionTitleWidget(title: 'Sobre o aplicativo'),
               const ListTile(
                 leading: Icon(Icons.image_outlined),
@@ -74,7 +84,9 @@ class SettingsPage extends StatelessWidget {
               const ListTile(
                 leading: Icon(Icons.architecture_outlined),
                 title: Text('Arquitetura'),
-                subtitle: Text('MVVM com Models, Views, ViewModels e Services.'),
+                subtitle: Text(
+                  'MVVM com Models, Views, ViewModels e Services.',
+                ),
               ),
               const ListTile(
                 leading: Icon(Icons.school_outlined),

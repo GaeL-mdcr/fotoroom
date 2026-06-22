@@ -12,6 +12,7 @@ import '../services/image_export_service.dart';
 import '../services/image_picker_service.dart';
 import '../services/project_rules_service.dart';
 import '../services/share_service.dart';
+import '../services/system_message_service.dart';
 import '../viewmodels/editor_view_model.dart';
 import '../viewmodels/export_view_model.dart';
 import '../viewmodels/project_view_model.dart';
@@ -27,6 +28,9 @@ class AppWidget extends StatelessWidget {
       providers: [
         Provider<ImageEditorAdapter>(
           create: (_) => ProImageEditorAdapter(),
+        ),
+        Provider<SystemMessageService>(
+          create: (_) => SystemMessageService(),
         ),
         ChangeNotifierProvider<ProjectViewModel>(
           create: (_) {
