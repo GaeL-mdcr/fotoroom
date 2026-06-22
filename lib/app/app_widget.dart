@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../common/app_colors.dart';
+import '../core/adapters/image_editor_adapter.dart';
 import '../models/app_settings_model.dart';
 import '../repositories/project_local_repository.dart';
+import '../services/adapters/pro_image_editor_adapter.dart';
 import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
 import '../services/image_export_service.dart';
@@ -23,6 +25,9 @@ class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<ImageEditorAdapter>(
+          create: (_) => ProImageEditorAdapter(),
+        ),
         ChangeNotifierProvider<ProjectViewModel>(
           create: (_) {
             final fileStorageService = FileStorageService();
@@ -30,7 +35,9 @@ class AppWidget extends StatelessWidget {
             final viewModel = ProjectViewModel(
               ProjectLocalRepository(fileStorageService),
               ImagePickerService(),
-              ProjectRulesService(),              fileStorageService,            );
+              ProjectRulesService(),
+              fileStorageService,
+            );
 
             viewModel.carregarProjetos();
 

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,12 +5,12 @@ import '../../common/app_spacing.dart';
 import '../../common/dialogs/save_edited_image_dialog.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
+import '../../core/adapters/image_editor_adapter.dart';
 import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/export_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
 import 'editor_preview_widget.dart';
 import 'editor_project_header_widget.dart';
-import 'pro_image_editor_page.dart';
 
 class EditorPage extends StatelessWidget {
   const EditorPage({super.key});
@@ -162,15 +160,11 @@ class EditorPage extends StatelessWidget {
       return;
     }
 
-    final bytes = await Navigator.push<Uint8List>(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return ProImageEditorPage(
-            imagePath: imagePath,
-          );
-        },
-      ),
+    final imageEditorAdapter = context.read<ImageEditorAdapter>();
+
+    final bytes = await imageEditorAdapter.editarImagem(
+      context: context,
+      imagePath: imagePath,
     );
 
     if (!context.mounted || bytes == null) return;
