@@ -33,7 +33,10 @@ class ProjectCardWidget extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _ProjectImage(imagePath: imagePath),
+                  _ProjectImage(
+                    imagePath: imagePath,
+                    imageVersion: project.updatedAt.microsecondsSinceEpoch,
+                  ),
                   Positioned(
                     top: 4,
                     right: 4,
@@ -66,9 +69,11 @@ class ProjectCardWidget extends StatelessWidget {
 
 class _ProjectImage extends StatelessWidget {
   final String imagePath;
+  final int imageVersion;
 
   const _ProjectImage({
     required this.imagePath,
+    required this.imageVersion,
   });
 
   @override
@@ -77,6 +82,7 @@ class _ProjectImage extends StatelessWidget {
 
     return Image.file(
       file,
+      key: ValueKey('$imagePath-$imageVersion'),
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(

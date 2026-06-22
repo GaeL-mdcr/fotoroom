@@ -19,13 +19,13 @@ class ProjectViewModel extends ChangeNotifier {
     this._fileStorageService,
   );
 
-  List _projetos = [];
+  List<ProjectModel> _projetos = [];
 
   ProjectModel? _projetoSelecionado;
   bool _carregando = false;
   String? _mensagemErro;
 
-  List get projetos => List.unmodifiable(_projetos);
+  List<ProjectModel> get projetos => List.unmodifiable(_projetos);
   ProjectModel? get projetoSelecionado => _projetoSelecionado;
   bool get carregando => _carregando;
   String? get mensagemErro => _mensagemErro;
@@ -36,7 +36,7 @@ class ProjectViewModel extends ChangeNotifier {
     return _projectRulesService.gerarNomeSugerido(_projetos.length);
   }
 
-  Future carregarProjetos() async {
+  Future<void> carregarProjetos() async {
     _carregando = true;
     _mensagemErro = null;
     notifyListeners();
@@ -51,7 +51,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future criarProjeto({
+  Future<bool> criarProjeto({
     required String nome,
     required String caminhoImagemOriginal,
   }) async {
@@ -98,7 +98,7 @@ class ProjectViewModel extends ChangeNotifier {
     }
   }
 
-  Future criarProjetoComImagemSelecionada({
+  Future<bool> criarProjetoComImagemSelecionada({
     required String nome,
   }) async {
     _mensagemErro = null;
@@ -134,7 +134,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future renomearProjeto(String id, String novoNome) async {
+  Future<void> renomearProjeto(String id, String novoNome) async {
     final index = _projetos.indexWhere(
       (projeto) => projeto.id == id,
     );
@@ -157,7 +157,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future excluirProjeto(String id) async {
+  Future<void> excluirProjeto(String id) async {
     await _repository.excluirProjeto(id);
 
     _projetos = await _repository.listarProjetos();
@@ -169,7 +169,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future atualizarImagemEditadaDoProjeto({
+  Future<void> atualizarImagemEditadaDoProjeto({
     required String id,
     required String editedImagePath,
   }) async {
