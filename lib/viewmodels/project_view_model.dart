@@ -60,14 +60,14 @@ class ProjectViewModel extends ChangeNotifier {
       caminhoImagemOriginal: caminhoImagemOriginal,
     );
 
-    if (resultado.isFailure || resultado.data == null) {
+    if (resultado.isFailure) {
       _mensagemErro = resultado.error;
       notifyListeners();
       return false;
     }
 
     try {
-      final projetoTemporario = resultado.data!;
+      final projetoTemporario = resultado.dataOrThrow;
 
       final caminhoInternoOriginal = await _fileStorageService
           .salvarImagemOriginal(
@@ -177,11 +177,6 @@ class ProjectViewModel extends ChangeNotifier {
     );
 
     await _salvarProjetoERecarregar(projetoAtualizado);
-  }
-
-  void definirErro(String? mensagem) {
-    _mensagemErro = mensagem;
-    notifyListeners();
   }
 
   ProjectModel? _buscarProjetoPorId(String id) {

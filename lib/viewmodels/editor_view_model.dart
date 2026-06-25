@@ -35,8 +35,6 @@ class EditorViewModel extends ChangeNotifier {
   bool get possuiAlteracoesNaoSalvas => _possuiAlteracoesNaoSalvas;
   bool get modoEdicaoAtivo => _modoEdicaoAtivo;
 
-  bool get possuiImagemEditadaEmMemoria => _imagemEditadaBytes != null;
-
   bool get possuiImagemEditadaSalva {
     return _editedImagePath != null && _editedImagePath!.trim().isNotEmpty;
   }

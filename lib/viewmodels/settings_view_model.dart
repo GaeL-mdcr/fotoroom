@@ -31,13 +31,6 @@ class SettingsViewModel extends ChangeNotifier {
     await _salvarConfiguracoes();
   }
 
-  Future<void> alterarHistoricoDeExportacao(bool valor) async {
-    _configuracoes = _configuracoes.copyWith(saveExportHistory: valor);
-    notifyListeners();
-
-    await _salvarConfiguracoes();
-  }
-
   Future<void> alterarMensagensDoSistema(bool valor) async {
     _configuracoes = _configuracoes.copyWith(showSystemMessages: valor);
     notifyListeners();

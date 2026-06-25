@@ -49,7 +49,9 @@ class EditorPage extends StatelessWidget {
               ),
               IconButton(
                 tooltip: 'Compartilhar imagem',
-                onPressed: exportViewModel.compartilhando
+                onPressed:
+                    exportViewModel.compartilhando ||
+                        !editorViewModel.podeCompartilharImagem
                     ? null
                     : () {
                         _compartilharImagem(context, editorViewModel);
@@ -119,9 +121,11 @@ class EditorPage extends StatelessWidget {
                     EditorActionsWidget(
                       compartilhando: exportViewModel.compartilhando,
                       onEdit: editorViewModel.iniciarModoEdicao,
-                      onShare: () {
-                        _compartilharImagem(context, editorViewModel);
-                      },
+                      onShare: editorViewModel.podeCompartilharImagem
+                          ? () {
+                              _compartilharImagem(context, editorViewModel);
+                            }
+                          : null,
                     ),
                   ],
                 ),
@@ -188,8 +192,6 @@ class EditorPage extends StatelessWidget {
     if (!context.mounted) {
       return;
     }
-
-    debugPrint('EditorPage recebeu imagem editada: ${bytes.length} bytes');
 
     await Future.delayed(const Duration(milliseconds: 200));
 

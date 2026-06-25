@@ -53,16 +53,6 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              const AppSectionTitleWidget(title: 'Exportação'),
-              SwitchListTile(
-                title: const Text('Salvar histórico de exportações'),
-                subtitle: const Text(
-                  'Registra informações simples das imagens exportadas',
-                ),
-                value: configuracoes.saveExportHistory,
-                onChanged: viewModel.alterarHistoricoDeExportacao,
-              ),
-              const Divider(),
               const AppSectionTitleWidget(title: 'Mensagens'),
               SwitchListTile(
                 title: const Text('Mostrar mensagens do sistema'),
@@ -71,29 +61,6 @@ class SettingsPage extends StatelessWidget {
                 ),
                 value: configuracoes.showSystemMessages,
                 onChanged: viewModel.alterarMensagensDoSistema,
-              ),
-              const Divider(),
-              const AppSectionTitleWidget(title: 'Sobre o aplicativo'),
-              const ListTile(
-                leading: Icon(Icons.image_outlined),
-                title: Text('FotoRoom'),
-                subtitle: Text(
-                  'Editor de imagens mobile desenvolvido em Flutter.',
-                ),
-              ),
-              const ListTile(
-                leading: Icon(Icons.architecture_outlined),
-                title: Text('Arquitetura'),
-                subtitle: Text(
-                  'MVVM com Models, Views, ViewModels e Services.',
-                ),
-              ),
-              const ListTile(
-                leading: Icon(Icons.school_outlined),
-                title: Text('Projeto acadêmico'),
-                subtitle: Text(
-                  'Versão simplificada, local e viável para o prazo definido.',
-                ),
               ),
             ],
           ),

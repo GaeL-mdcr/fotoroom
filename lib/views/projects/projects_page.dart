@@ -6,30 +6,25 @@ import '../../common/dialogs/confirmation_dialog.dart';
 import '../../common/dialogs/project_name_dialog.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
+import '../../services/system_message_service.dart';
 import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
+import '../../viewmodels/settings_view_model.dart';
 import 'project_card_widget.dart';
 
 class ProjectsPage extends StatelessWidget {
   final VoidCallback onOpenProject;
 
-  const ProjectsPage({
-    super.key,
-    required this.onOpenProject,
-  });
+  const ProjectsPage({super.key, required this.onOpenProject});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projetos'),
-      ),
+      appBar: AppBar(title: const Text('Projetos')),
       body: Consumer<ProjectViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.carregando) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (!viewModel.possuiProjetos) {
@@ -68,12 +63,10 @@ class ProjectsPage extends StatelessWidget {
 
                   context.read<EditorViewModel>().carregarProjeto(projeto);
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Projeto "${projeto.name}" aberto no editor.',
-                      ),
-                    ),
+                  context.read<SystemMessageService>().mostrarInformacao(
+                    context: context,
+                    mensagem: 'Projeto "${projeto.name}" aberto no editor.',
+                    mensagensAtivas: _mensagensDoSistemaAtivas(context),
                   );
 
                   onOpenProject();
@@ -127,15 +120,18 @@ class ProjectsPage extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    final mensagem = criouProjeto
-        ? 'Projeto criado com imagem selecionada.'
-        : viewModel.mensagemErro ?? 'Nenhuma imagem foi selecionada.';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-      ),
-    );
+    if (criouProjeto) {
+      context.read<SystemMessageService>().mostrarInformacao(
+        context: context,
+        mensagem: 'Projeto criado com imagem selecionada.',
+        mensagensAtivas: _mensagensDoSistemaAtivas(context),
+      );
+    } else {
+      context.read<SystemMessageService>().mostrarErro(
+        context: context,
+        mensagem: viewModel.mensagemErro ?? 'Nenhuma imagem foi selecionada.',
+      );
+    }
   }
 
   Future<void> _mostrarDialogoRenomear({
@@ -152,10 +148,7 @@ class ProjectsPage extends StatelessWidget {
 
     if (!context.mounted || novoNome == null) return;
 
-    await context.read<ProjectViewModel>().renomearProjeto(
-          projectId,
-          novoNome,
-        );
+    await context.read<ProjectViewModel>().renomearProjeto(projectId, novoNome);
   }
 
   Future<void> _mostrarDialogoExcluir({
@@ -183,10 +176,10 @@ class ProjectsPage extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Projeto "$projectName" excluído.'),
-      ),
+    context.read<SystemMessageService>().mostrarInformacao(
+      context: context,
+      mensagem: 'Projeto "$projectName" excluído.',
+      mensagensAtivas: _mensagensDoSistemaAtivas(context),
     );
   }
 
@@ -218,5 +211,9 @@ class ProjectsPage extends StatelessWidget {
         editorViewModel.marcarComoSalvo();
         return true;
     }
+  }
+
+  bool _mensagensDoSistemaAtivas(BuildContext context) {
+    return context.read<SettingsViewModel>().configuracoes.showSystemMessages;
   }
 }

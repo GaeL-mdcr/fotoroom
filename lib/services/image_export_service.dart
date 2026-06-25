@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'file_storage_service.dart';
 
 class ImageExportService {
@@ -8,8 +6,6 @@ class ImageExportService {
   ImageExportService(this._fileStorageService);
 
   Future<String> exportarImagemJpg({required String imagePath}) async {
-    debugPrint('Preparando imagem JPG para compartilhamento: $imagePath');
-
     return _fileStorageService.exportarImagemJpg(imagePath: imagePath);
   }
 }
