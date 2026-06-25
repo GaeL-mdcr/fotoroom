@@ -23,42 +23,29 @@ class ProjectCardWidget extends StatelessWidget {
     final imagePath = project.thumbnailPath ?? project.currentImagePath;
 
     return Card(
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(),
       child: InkWell(
         onTap: onOpen,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _ProjectImage(
-                    imagePath: imagePath,
-                    imageVersion: project.updatedAt.microsecondsSinceEpoch,
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: _ProjectMenuButton(
-                      onRename: onRename,
-                      onDelete: onDelete,
-                    ),
-                  ),
-                ],
-              ),
+            _ProjectImage(
+              imagePath: imagePath,
+              imageVersion: project.updatedAt.microsecondsSinceEpoch,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                project.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: _ProjectMenuButton(onRename: onRename, onDelete: onDelete),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _ProjectNameOverlay(projectName: project.name),
             ),
           ],
         ),
@@ -71,10 +58,7 @@ class _ProjectImage extends StatelessWidget {
   final String imagePath;
   final int imageVersion;
 
-  const _ProjectImage({
-    required this.imagePath,
-    required this.imageVersion,
-  });
+  const _ProjectImage({required this.imagePath, required this.imageVersion});
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +74,40 @@ class _ProjectImage extends StatelessWidget {
           child: Icon(
             Icons.image_outlined,
             color: Theme.of(context).colorScheme.onPrimaryContainer,
-            size: 36,
+            size: 28,
           ),
         );
       },
+    );
+  }
+}
+
+class _ProjectNameOverlay extends StatelessWidget {
+  final String projectName;
+
+  const _ProjectNameOverlay({required this.projectName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(6, 12, 6, 6),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.transparent, Colors.black54],
+        ),
+      ),
+      child: Text(
+        projectName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }
@@ -102,40 +116,39 @@ class _ProjectMenuButton extends StatelessWidget {
   final VoidCallback onRename;
   final VoidCallback onDelete;
 
-  const _ProjectMenuButton({
-    required this.onRename,
-    required this.onDelete,
-  });
+  const _ProjectMenuButton({required this.onRename, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
       shape: const CircleBorder(),
-      child: PopupMenuButton(
-        icon: const Icon(Icons.more_vert),
-        tooltip: 'Opções do projeto',
-        onSelected: (value) {
-          if (value == 'rename') {
-            onRename();
-          }
+      child: SizedBox(
+        width: 26,
+        height: 26,
+        child: PopupMenuButton<String>(
+          padding: EdgeInsets.zero,
+          iconSize: 16,
+          constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+          icon: const Icon(Icons.more_vert),
+          tooltip: 'Opções do projeto',
+          onSelected: (value) {
+            if (value == 'rename') {
+              onRename();
+              return;
+            }
 
-          if (value == 'delete') {
-            onDelete();
-          }
-        },
-        itemBuilder: (context) {
-          return const [
-            PopupMenuItem(
-              value: 'rename',
-              child: Text('Renomear'),
-            ),
-            PopupMenuItem(
-              value: 'delete',
-              child: Text('Excluir'),
-            ),
-          ];
-        },
+            if (value == 'delete') {
+              onDelete();
+            }
+          },
+          itemBuilder: (context) {
+            return const [
+              PopupMenuItem(value: 'rename', child: Text('Renomear')),
+              PopupMenuItem(value: 'delete', child: Text('Excluir')),
+            ];
+          },
+        ),
       ),
     );
   }

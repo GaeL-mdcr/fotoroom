@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/app_spacing.dart';
 import '../../common/dialogs/confirmation_dialog.dart';
 import '../../common/dialogs/project_name_dialog.dart';
 import '../../common/dialogs/unsaved_changes_dialog.dart';
@@ -39,13 +38,13 @@ class ProjectsPage extends StatelessWidget {
           final projetos = viewModel.projetos;
 
           return GridView.builder(
-            padding: const EdgeInsets.all(AppSpacing.medium),
+            padding: const EdgeInsets.all(2),
             itemCount: projetos.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.72,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              childAspectRatio: 1,
             ),
             itemBuilder: (context, index) {
               final projeto = projetos[index];
@@ -53,8 +52,10 @@ class ProjectsPage extends StatelessWidget {
               return ProjectCardWidget(
                 project: projeto,
                 onOpen: () async {
-                  final podeAbrir = await _verificarAlteracoesAntesDeAbrir(
+                  final podeAbrir = await _confirmarAberturaDeProjeto(
                     context: context,
+                    projectId: projeto.id,
+                    projectName: projeto.name,
                   );
 
                   if (!context.mounted || !podeAbrir) return;
@@ -183,34 +184,53 @@ class ProjectsPage extends StatelessWidget {
     );
   }
 
-  Future<bool> _verificarAlteracoesAntesDeAbrir({
+  Future<bool> _confirmarAberturaDeProjeto({
     required BuildContext context,
+    required String projectId,
+    required String projectName,
   }) async {
     final editorViewModel = context.read<EditorViewModel>();
 
-    if (!editorViewModel.possuiAlteracoesNaoSalvas) {
+    if (!editorViewModel.possuiProjetoAberto) {
       return true;
     }
 
-    final action = await showUnsavedChangesDialog(
+    if (editorViewModel.projectId == projectId) {
+      return true;
+    }
+
+    if (editorViewModel.possuiAlteracoesNaoSalvas) {
+      final action = await showUnsavedChangesDialog(
+        context: context,
+        message:
+            'Existe uma edição em andamento. O que deseja fazer antes de abrir o projeto "$projectName"?',
+      );
+
+      if (!context.mounted) return false;
+
+      switch (action) {
+        case UnsavedChangesAction.cancel:
+          return false;
+
+        case UnsavedChangesAction.discard:
+          return true;
+
+        case UnsavedChangesAction.save:
+          editorViewModel.marcarComoSalvo();
+          return true;
+      }
+    }
+
+    final confirmou = await showConfirmationDialog(
       context: context,
+      title: 'Trocar projeto',
       message:
-          'Existe uma edição em andamento. O que deseja fazer antes de abrir outro projeto?',
+          'Já existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"?',
+      cancelLabel: 'Cancelar',
+      confirmLabel: 'Abrir projeto',
     );
 
-    if (!context.mounted) return false;
-
-    switch (action) {
-      case UnsavedChangesAction.cancel:
-        return false;
-
-      case UnsavedChangesAction.discard:
-        return true;
-
-      case UnsavedChangesAction.save:
-        editorViewModel.marcarComoSalvo();
-        return true;
-    }
+    return confirmou;
   }
 
   bool _mensagensDoSistemaAtivas(BuildContext context) {
