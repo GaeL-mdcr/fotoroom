@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/widgets/app_section_title_widget.dart';
 import '../../models/app_settings_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 
@@ -27,7 +26,7 @@ class SettingsPage extends StatelessWidget {
           ),
           body: ListView(
             children: [
-              const AppSectionTitleWidget(title: 'Aparência'),
+              const _SettingsSectionTitle(title: 'Aparência'),
               RadioGroup<AppThemeMode>(
                 groupValue: configuracoes.themeMode,
                 onChanged: (value) {
@@ -53,7 +52,7 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              const AppSectionTitleWidget(title: 'Mensagens'),
+              const _SettingsSectionTitle(title: 'Mensagens'),
               SwitchListTile(
                 title: const Text('Mostrar mensagens do sistema'),
                 subtitle: const Text(
@@ -66,6 +65,20 @@ class SettingsPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SettingsSectionTitle extends StatelessWidget {
+  final String title;
+
+  const _SettingsSectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
     );
   }
 }
