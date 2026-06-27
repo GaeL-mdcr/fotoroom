@@ -5,6 +5,7 @@ import '../repositories/project_repository.dart';
 import '../services/file_storage_service.dart';
 import '../services/image_picker_service.dart';
 import '../services/project_rules_service.dart';
+import 'project_sort_option.dart';
 
 class ProjectViewModel extends ChangeNotifier {
   final ProjectRepository _repository;
@@ -20,11 +21,13 @@ class ProjectViewModel extends ChangeNotifier {
   );
 
   List<ProjectModel> _projetos = [];
+  ProjectSortOption _sortOption = ProjectSortOption.newest;
 
   bool _carregando = false;
   String? _mensagemErro;
 
   List<ProjectModel> get projetos => List.unmodifiable(_projetos);
+  ProjectSortOption get sortOption => _sortOption;
   bool get carregando => _carregando;
   String? get mensagemErro => _mensagemErro;
 
@@ -32,6 +35,23 @@ class ProjectViewModel extends ChangeNotifier {
 
   String get nomeSugeridoParaNovoProjeto {
     return _projectRulesService.gerarNomeSugerido(_projetos.length);
+  }
+
+  List<ProjectModel> get projetosOrdenados {
+    final projetosOrdenados = List<ProjectModel>.from(_projetos);
+
+    projetosOrdenados.sort(_compararProjetos);
+
+    return projetosOrdenados;
+  }
+
+  void alterarOrdenacao(ProjectSortOption option) {
+    if (_sortOption == option) {
+      return;
+    }
+
+    _sortOption = option;
+    notifyListeners();
   }
 
   Future<void> carregarProjetos() async {
@@ -183,6 +203,22 @@ class ProjectViewModel extends ChangeNotifier {
     }
 
     return null;
+  }
+
+  int _compararProjetos(ProjectModel a, ProjectModel b) {
+    switch (_sortOption) {
+      case ProjectSortOption.newest:
+        return b.updatedAt.compareTo(a.updatedAt);
+
+      case ProjectSortOption.oldest:
+        return a.updatedAt.compareTo(b.updatedAt);
+
+      case ProjectSortOption.nameAsc:
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+
+      case ProjectSortOption.nameDesc:
+        return b.name.toLowerCase().compareTo(a.name.toLowerCase());
+    }
   }
 
   Future<void> _salvarProjetoERecarregar(ProjectModel projeto) async {

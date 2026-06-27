@@ -10,6 +10,7 @@ import '../../viewmodels/editor_view_model.dart';
 import '../../viewmodels/project_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 import 'project_card_widget.dart';
+import 'project_sort_control_widget.dart';
 
 class ProjectsPage extends StatelessWidget {
   final VoidCallback onOpenProject;
@@ -35,63 +36,76 @@ class ProjectsPage extends StatelessWidget {
             );
           }
 
-          final projetos = viewModel.projetos;
+          final projetos = viewModel.projetosOrdenados;
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(2),
-            itemCount: projetos.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
-              childAspectRatio: 1,
-            ),
-            itemBuilder: (context, index) {
-              final projeto = projetos[index];
+          return Column(
+            children: [
+              ProjectSortControlWidget(
+                selectedOption: viewModel.sortOption,
+                onChanged: viewModel.alterarOrdenacao,
+              ),
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(2),
+                  itemCount: projetos.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 2,
+                    mainAxisSpacing: 2,
+                    childAspectRatio: 1,
+                  ),
+                  itemBuilder: (context, index) {
+                    final projeto = projetos[index];
 
-              return ProjectCardWidget(
-                project: projeto,
-                onOpen: () async {
-                  final podeAbrir = await _confirmarAberturaDeProjeto(
-                    context: context,
-                    projectId: projeto.id,
-                    projectName: projeto.name,
-                  );
+                    return ProjectCardWidget(
+                      project: projeto,
+                      onOpen: () async {
+                        final podeAbrir = await _confirmarAberturaDeProjeto(
+                          context: context,
+                          projectId: projeto.id,
+                          projectName: projeto.name,
+                        );
 
-                  if (!context.mounted || !podeAbrir) return;
+                        if (!context.mounted || !podeAbrir) return;
 
-                  context.read<EditorViewModel>().carregarProjeto(projeto);
+                        context.read<EditorViewModel>().carregarProjeto(
+                          projeto,
+                        );
 
-                  context.read<SystemMessageService>().mostrarInformacao(
-                    context: context,
-                    mensagem: 'Projeto "${projeto.name}" aberto no editor.',
-                    mensagensAtivas: _mensagensDoSistemaAtivas(context),
-                  );
+                        context.read<SystemMessageService>().mostrarInformacao(
+                          context: context,
+                          mensagem:
+                              'Projeto "${projeto.name}" aberto no editor.',
+                          mensagensAtivas: _mensagensDoSistemaAtivas(context),
+                        );
 
-                  onOpenProject();
-                },
-                onRename: () {
-                  _mostrarDialogoRenomear(
-                    context: context,
-                    projectId: projeto.id,
-                    currentName: projeto.name,
-                  );
-                },
-                onShare: () {
-                  ShareImageAction.compartilharImagemSalva(
-                    context: context,
-                    imagePath: projeto.currentImagePath,
-                  );
-                },
-                onDelete: () {
-                  _mostrarDialogoExcluir(
-                    context: context,
-                    projectId: projeto.id,
-                    projectName: projeto.name,
-                  );
-                },
-              );
-            },
+                        onOpenProject();
+                      },
+                      onRename: () {
+                        _mostrarDialogoRenomear(
+                          context: context,
+                          projectId: projeto.id,
+                          currentName: projeto.name,
+                        );
+                      },
+                      onShare: () {
+                        ShareImageAction.compartilharImagemSalva(
+                          context: context,
+                          imagePath: projeto.currentImagePath,
+                        );
+                      },
+                      onDelete: () {
+                        _mostrarDialogoExcluir(
+                          context: context,
+                          projectId: projeto.id,
+                          projectName: projeto.name,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
