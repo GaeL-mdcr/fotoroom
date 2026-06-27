@@ -1,4 +1,4 @@
-import 'package:provider/provider.dart';
+﻿import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 import '../core/adapters/image_editor_adapter.dart';
@@ -17,6 +17,11 @@ import '../viewmodels/export_view_model.dart';
 import '../viewmodels/project_view_model.dart';
 import '../viewmodels/settings_view_model.dart';
 
+/// Centraliza a criação e disponibilização das dependências da aplicação.
+///
+/// Essa classe evita que telas criem diretamente services, repositories e
+/// ViewModels, reduzindo acoplamento e mantendo a montagem da aplicação em um
+/// único ponto.
 class AppProviders {
   const AppProviders._();
 

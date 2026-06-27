@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../editor/editor_page.dart';
 import '../projects/projects_page.dart';
 import '../settings/settings_page.dart';
 
+/// Tela principal de navegação do FotoRoom.
+///
+/// Ela organiza as abas principais da interface e preserva o estado visual de
+/// cada seção sem concentrar regras de negócio da aplicação.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -54,7 +58,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
-            label: 'Configurações',
+            label: 'ConfiguraÃ§Ãµes',
           ),
         ],
       ),

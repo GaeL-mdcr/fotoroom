@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,10 +6,37 @@ import 'package:pro_image_editor/pro_image_editor.dart';
 
 import '../../common/app_colors.dart';
 
+/// Facade do subsistema de edição de imagens do FotoRoom.
+///
+/// Esta classe concentra a integração com o pacote externo `pro_image_editor`.
+/// Sem esta Facade, a tela `EditorPage` precisaria conhecer detalhes de
+/// construção do editor, callbacks, ferramentas disponíveis, tema visual,
+/// estados de carregamento, salvamento e compartilhamento.
+///
+/// No padrão GoF Facade, o objetivo é oferecer uma interface mais simples para
+/// um subsistema complexo. Aqui, o subsistema complexo é o editor externo de
+/// imagens, e esta classe oferece uma entrada coesa para o restante do app.
+///
+/// A classe também favorece High Cohesion, pois mantém em um único componente
+/// as responsabilidades relacionadas à integração visual e comportamental do
+/// editor externo.
 class ProImageEditorFacadeWidget extends StatefulWidget {
+  /// Caminho da imagem que será entregue ao editor externo.
+  /// A Facade não escolhe qual imagem usar; essa decisão vem da camada de
+  /// apresentação por meio do EditorViewModel.
   final String imagePath;
+
+  /// Callback da aplicação para salvar os bytes editados.
+  /// A Facade captura a imagem no editor, mas não sabe como o projeto é
+  /// persistido. Essa separação mantém o salvamento fora do widget externo.
   final Future<bool> Function(Uint8List bytes) onSaveImage;
+
+  /// Callback da aplicação para compartilhar a imagem já salva.
+  /// A Facade apenas dispara a ação; a regra de exportação/compartilhamento
+  /// fica fora do editor, preservando a separação de responsabilidades.
   final Future<bool> Function() onShareSavedImage;
+
+  /// Callback usado para fechar o editor e devolver o controle à aplicação.
   final VoidCallback onCloseEditor;
 
   const ProImageEditorFacadeWidget({
@@ -31,6 +58,11 @@ class _ProImageEditorFacadeWidgetState
   bool _salvando = false;
   bool _compartilhando = false;
 
+  /// Centraliza a adaptação visual do pacote externo ao tema do FotoRoom.
+  ///
+  /// Essa configuração ficaria espalhada pela `EditorPage` se a Facade não
+  /// existisse. Ao concentrar o tema aqui, a integração visual do editor externo
+  /// fica coesa e mais fácil de alterar.
   ThemeData _buildEditorTheme(BuildContext context) {
     final baseTheme = Theme.of(context);
 
@@ -66,6 +98,15 @@ class _ProImageEditorFacadeWidgetState
     );
   }
 
+  /// Captura a imagem atual do editor e delega o salvamento para a aplicação.
+  ///
+  /// Este método é parte importante da Facade: ele conhece a API do
+  /// `pro_image_editor`, especificamente `captureEditorImage()`, mas não conhece
+  /// os detalhes de persistência do FotoRoom. A persistência continua nos
+  /// ViewModels e services apropriados.
+  ///
+  /// Assim, a Facade faz a mediação entre o subsistema externo e a regra da
+  /// aplicação, aplicando Indirection do GRASP.
   Future<void> _salvarSemFechar(ProImageEditorState editor) async {
     if (_salvando || _compartilhando) return;
 
@@ -88,6 +129,11 @@ class _ProImageEditorFacadeWidgetState
     }
   }
 
+  /// Dispara o compartilhamento da imagem salva sem misturar a regra de
+  /// compartilhamento com o editor externo.
+  ///
+  /// A Facade exibe o botão e controla o estado visual de carregamento, mas a
+  /// ação real de compartilhar é delegada para a aplicação por callback.
   Future<void> _compartilharImagemSalva() async {
     if (_salvando || _compartilhando) return;
 
@@ -106,6 +152,9 @@ class _ProImageEditorFacadeWidgetState
     }
   }
 
+  /// Pequeno helper visual para evitar duplicação entre os botões de salvar e
+  /// compartilhar. Ele mantém a Facade mais coesa sem espalhar lógica visual
+  /// repetida pela AppBar customizada.
   Widget _buildActionIcon({required bool loading, required IconData icon}) {
     if (!loading) {
       return Icon(icon);
@@ -120,8 +169,14 @@ class _ProImageEditorFacadeWidgetState
 
   @override
   Widget build(BuildContext context) {
+    // Aqui a Facade monta o subsistema externo. A EditorPage não instancia
+    // ProImageEditor.file diretamente, nem conhece os objetos de configuração
+    // do pacote. Toda essa complexidade fica protegida dentro da Facade.
     return ProImageEditor.file(
       File(widget.imagePath),
+      // Callbacks do pacote externo são traduzidos para callbacks da aplicação.
+      // Isso evita que o domínio do FotoRoom fique acoplado diretamente ao ciclo
+      // interno do pro_image_editor.
       callbacks: ProImageEditorCallbacks(
         onImageEditingComplete: (Uint8List bytes) async {
           await widget.onSaveImage(bytes);
@@ -130,6 +185,9 @@ class _ProImageEditorFacadeWidgetState
           widget.onCloseEditor();
         },
       ),
+      // A configuração do editor externo fica concentrada aqui: tema, ferramentas,
+      // subeditores, AppBar customizada e comportamento visual. Esse é o principal
+      // papel da Facade neste projeto.
       configs: ProImageEditorConfigs(
         theme: _buildEditorTheme(context),
         mainEditor: MainEditorConfigs(
@@ -146,6 +204,9 @@ class _ProImageEditorFacadeWidgetState
             SubEditorMode.blur,
             SubEditorMode.emoji,
           ],
+          // A AppBar padrão do editor é substituída por uma AppBar do FotoRoom.
+          // Assim, o pacote externo é integrado à experiência visual do app sem
+          // expor essa personalização para a tela cliente.
           widgets: MainEditorWidgets(
             appBar: (editor, rebuildStream) {
               return ReactiveAppbar(
@@ -161,6 +222,8 @@ class _ProImageEditorFacadeWidgetState
                       onPressed: widget.onCloseEditor,
                     ),
                     actions: [
+                      // O botão Salvar usa a API do editor para capturar a imagem
+                      // atual, mas delega a persistência para o callback da aplicação.
                       IconButton(
                         tooltip: 'Salvar',
                         onPressed: _salvando || _compartilhando
@@ -173,6 +236,9 @@ class _ProImageEditorFacadeWidgetState
                           icon: Icons.save,
                         ),
                       ),
+                      // O botão Compartilhar não salva automaticamente. Ele aciona
+                      // o fluxo de compartilhamento da imagem já persistida, mantendo
+                      // as ações de salvar e compartilhar separadas.
                       IconButton(
                         tooltip: 'Compartilhar imagem salva',
                         onPressed: _salvando || _compartilhando

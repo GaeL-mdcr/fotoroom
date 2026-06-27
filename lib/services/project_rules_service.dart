@@ -1,12 +1,15 @@
-import '../common/result.dart';
+﻿import '../common/result.dart';
 import '../models/project_model.dart';
 
+/// Serviço responsável por validar regras de criação e renomeação de projetos.
+///
+/// As regras ficam fora da tela e fora do repositório, mantendo melhor coesão.
 class ProjectRulesService {
   Result<String> validarNomeProjeto(String nome) {
     final nomeValidado = nome.trim();
 
     if (nomeValidado.isEmpty) {
-      return const Result.failure('O nome do projeto não pode ficar vazio.');
+      return const Result.failure('O nome do projeto nÃ£o pode ficar vazio.');
     }
 
     return Result.success(nomeValidado);

@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 import '../../models/project_model.dart';
 import 'project_card_widget.dart';
 
+/// Widget visual da grade de projetos.
+///
+/// Ele apresenta os cards e encaminha eventos de abertura, reordenação e ações
+/// de projeto para a tela ou ViewModel responsável.
 class ProjectGalleryGridWidget extends StatefulWidget {
   final List<ProjectModel> projects;
   final ValueChanged<List<ProjectModel>> onReorderPinnedProjects;

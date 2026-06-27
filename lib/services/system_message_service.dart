@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Serviço responsável por exibir mensagens simples do sistema.
+///
+/// Ele centraliza o uso de SnackBars, evitando que regras de fluxo espalhem
+/// diretamente detalhes de mensagem visual pela aplicação.
 class SystemMessageService {
   void mostrarInformacao({
     required BuildContext context,

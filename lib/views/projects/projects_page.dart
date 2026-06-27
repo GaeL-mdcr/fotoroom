@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/actions/share_image_action.dart';
@@ -12,6 +12,11 @@ import '../../viewmodels/settings_view_model.dart';
 import 'project_gallery_grid_widget.dart';
 import 'project_sort_control_widget.dart';
 
+/// Tela de projetos.
+///
+/// Atua como camada de interface: exibe a galeria e encaminha ações do usuário
+/// para o ProjectViewModel. A lógica de ordenação, fixação e persistência não
+/// fica nesta tela.
 class ProjectsPage extends StatelessWidget {
   final VoidCallback onOpenProject;
 
@@ -166,7 +171,7 @@ class ProjectsPage extends StatelessWidget {
       context: context,
       title: 'Excluir projeto',
       message:
-          'Deseja excluir o projeto "$projectName"? Essa ação não poderá ser desfeita.',
+          'Deseja excluir o projeto "$projectName"? Essa aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.',
       confirmLabel: 'Excluir',
     );
 
@@ -184,7 +189,7 @@ class ProjectsPage extends StatelessWidget {
 
     context.read<SystemMessageService>().mostrarInformacao(
       context: context,
-      mensagem: 'Projeto "$projectName" excluído.',
+      mensagem: 'Projeto "$projectName" excluÃ­do.',
       mensagensAtivas: _mensagensDoSistemaAtivas(context),
     );
   }
@@ -208,7 +213,7 @@ class ProjectsPage extends StatelessWidget {
       context: context,
       title: 'Trocar projeto',
       message:
-          'Já existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"? Alterações não salvas no editor podem ser perdidas.',
+          'JÃ¡ existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"? AlteraÃ§Ãµes nÃ£o salvas no editor podem ser perdidas.',
       cancelLabel: 'Cancelar',
       confirmLabel: 'Abrir projeto',
     );

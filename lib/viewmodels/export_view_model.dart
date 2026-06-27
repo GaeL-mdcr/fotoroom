@@ -1,8 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../services/file_storage_service.dart';
 import '../services/share_service.dart';
 
+/// ViewModel responsável por coordenar o fluxo de compartilhamento.
+///
+/// Ele prepara a imagem exportada e delega o envio ao ShareService.
+///
+/// Assim, a View solicita a ação, mas não conhece os detalhes de exportação nem
+/// do pacote de compartilhamento usado pelo serviço.
 class ExportViewModel extends ChangeNotifier {
   final FileStorageService _fileStorageService;
   final ShareService _shareService;
@@ -21,7 +27,7 @@ class ExportViewModel extends ChangeNotifier {
     }
 
     if (imagePath.trim().isEmpty) {
-      _mensagemErro = 'Nenhuma imagem final foi encontrada para exportação.';
+      _mensagemErro = 'Nenhuma imagem final foi encontrada para exportaÃ§Ã£o.';
       notifyListeners();
       return false;
     }
@@ -38,7 +44,7 @@ class ExportViewModel extends ChangeNotifier {
       final sucesso = await _shareService.compartilharArquivo(caminhoExportado);
 
       if (!sucesso) {
-        _mensagemErro = 'Não foi possível compartilhar a imagem.';
+        _mensagemErro = 'NÃ£o foi possÃ­vel compartilhar a imagem.';
       }
 
       return sucesso;

@@ -1,5 +1,9 @@
-import 'package:image_picker/image_picker.dart';
+﻿import 'package:image_picker/image_picker.dart';
 
+/// Serviço responsável por selecionar imagens da galeria do dispositivo.
+///
+/// Essa separação impede que ViewModels e telas dependam diretamente dos
+/// detalhes do pacote usado para acessar imagens do sistema.
 class ImagePickerService {
   final ImagePicker _picker;
 

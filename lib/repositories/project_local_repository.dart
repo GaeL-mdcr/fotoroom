@@ -1,9 +1,12 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import '../models/project_model.dart';
 import '../services/file_storage_service.dart';
 import 'project_repository.dart';
 
+/// Implementação local do repositório de projetos usando arquivo JSON.
+///
+/// Esta classe concentra os detalhes de leitura e escrita dos dados persistidos.
 class ProjectLocalRepository implements ProjectRepository {
   final FileStorageService _storageService;
 

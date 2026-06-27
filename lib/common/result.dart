@@ -1,3 +1,8 @@
+﻿/// Retorno padronizado para operações que podem resultar em sucesso ou falha.
+///
+/// Essa classe permite que services e regras de domínio comuniquem dados ou
+/// mensagens de erro sem depender diretamente de widgets ou exceções para o
+/// fluxo esperado da aplicação.
 class Result<T> {
   final T? data;
   final String? error;
@@ -12,7 +17,7 @@ class Result<T> {
     final value = data;
 
     if (value == null) {
-      throw StateError('Resultado não possui dados.');
+      throw StateError('Resultado nÃ£o possui dados.');
     }
 
     return value;

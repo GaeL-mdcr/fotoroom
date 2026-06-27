@@ -1,9 +1,13 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import '../models/app_settings_model.dart';
 import '../services/file_storage_service.dart';
 import 'settings_repository.dart';
 
+/// Implementação local do repositório de configurações usando arquivo JSON.
+///
+/// Esta classe concentra os detalhes de leitura e escrita das preferências
+/// persistidas do usuário.
 class SettingsLocalRepository implements SettingsRepository {
   final FileStorageService _storageService;
 

@@ -1,5 +1,9 @@
-enum AppThemeMode { system, light, dark }
+﻿enum AppThemeMode { system, light, dark }
 
+/// Representa as configurações persistidas da aplicação.
+///
+/// O model guarda apenas dados escolhidos pelo usuário, como tema e exibição de
+/// mensagens. Ele não aplica tema nem manipula interface diretamente.
 class AppSettingsModel {
   final AppThemeMode themeMode;
   final bool showSystemMessages;

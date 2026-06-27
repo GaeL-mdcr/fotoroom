@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../common/app_colors.dart';
 
+/// Centraliza a aparência visual da aplicação.
+///
+/// Essa classe reúne a configuração de temas claro e escuro, evitando que cores,
+/// estilos de botões e aparência de barras sejam definidos de forma espalhada
+/// pelas telas.
 class AppTheme {
   const AppTheme._();
 

@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Paleta reutilizável de cores da aplicação.
+///
+/// Centralizar as cores evita valores espalhados pelas telas e facilita manter
+/// consistência visual entre componentes e temas.
 class AppColors {
   static const Color primary = Color(0xFF6D28D9);
   static const Color primaryDark = Color(0xFF2E1065);

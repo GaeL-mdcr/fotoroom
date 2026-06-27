@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../models/project_model.dart';
 import '../repositories/project_repository.dart';
@@ -7,6 +7,13 @@ import '../services/image_picker_service.dart';
 import '../services/project_rules_service.dart';
 import 'project_sort_option.dart';
 
+/// ViewModel responsável por coordenar os casos de uso da galeria de projetos.
+///
+/// Ele não desenha interface nem manipula widgets. Sua função é organizar o
+/// estado da tela, chamar services/repositories e notificar mudanças.
+///
+/// No MVVM, ele atua como intermediário entre a View e as regras da aplicação;
+/// no GRASP, cumpre papel de Controller para as ações da galeria.
 class ProjectViewModel extends ChangeNotifier {
   final ProjectRepository _repository;
   final ImagePickerService _imagePickerService;
@@ -64,7 +71,7 @@ class ProjectViewModel extends ChangeNotifier {
     try {
       await _recarregarProjetos();
     } catch (_) {
-      _mensagemErro = 'Não foi possível carregar os projetos.';
+      _mensagemErro = 'NÃ£o foi possÃ­vel carregar os projetos.';
     }
 
     _carregando = false;
@@ -110,7 +117,7 @@ class ProjectViewModel extends ChangeNotifier {
 
       return true;
     } catch (_) {
-      _mensagemErro = 'Não foi possível salvar a imagem do projeto.';
+      _mensagemErro = 'NÃ£o foi possÃ­vel salvar a imagem do projeto.';
       notifyListeners();
 
       return false;
@@ -139,7 +146,7 @@ class ProjectViewModel extends ChangeNotifier {
 
       return criouProjeto;
     } catch (_) {
-      _mensagemErro = 'Não foi possível criar o projeto.';
+      _mensagemErro = 'NÃ£o foi possÃ­vel criar o projeto.';
       return false;
     } finally {
       _carregando = false;

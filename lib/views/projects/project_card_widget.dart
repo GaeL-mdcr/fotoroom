@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -6,6 +6,10 @@ import '../../models/project_model.dart';
 
 enum ProjectCardMenuAction { rename, share, pin, delete }
 
+/// Widget visual de um projeto na galeria.
+///
+/// Ele apenas apresenta o projeto e expõe callbacks para ações como abrir,
+/// renomear, compartilhar, fixar e excluir.
 class ProjectCardWidget extends StatelessWidget {
   final ProjectModel project;
   final VoidCallback onOpen;
@@ -166,7 +170,7 @@ class _ProjectMenuButton extends StatelessWidget {
         color: Colors.white,
         shadows: [Shadow(color: Colors.black87, blurRadius: 4)],
       ),
-      tooltip: 'Opções do projeto',
+      tooltip: 'OpÃ§Ãµes do projeto',
       onSelected: (value) {
         switch (value) {
           case ProjectCardMenuAction.rename:

@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Widget genérico para representar estados vazios da interface.
+///
+/// Ele padroniza ícone, título, mensagem e ação opcional, evitando duplicação
+/// nas telas que precisam informar ausência de dados ou conteúdo.
 class AppEmptyStateWidget extends StatelessWidget {
   final IconData icon;
   final String title;

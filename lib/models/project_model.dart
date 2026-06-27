@@ -1,3 +1,7 @@
+﻿/// Representa um projeto de imagem do FotoRoom.
+///
+/// O model guarda apenas dados e caminhos de arquivos. Ele não manipula
+/// diretamente imagens, telas ou persistência.
 class ProjectModel {
   final String id;
   final String name;
@@ -21,6 +25,8 @@ class ProjectModel {
     required this.pinnedIndex,
   });
 
+  /// Retorna a imagem que representa o estado atual do projeto.
+  /// A imagem editada tem prioridade; se não existir, usa a imagem original.
   String get currentImagePath {
     final editedPath = editedImagePath;
 

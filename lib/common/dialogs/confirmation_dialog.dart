@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Diálogo reutilizável para confirmar ações do usuário.
+///
+/// Ele centraliza a estrutura visual de confirmações simples, evitando que telas
+/// recriem o mesmo padrão de botões e retorno booleano.
 Future<bool> showConfirmationDialog({
   required BuildContext context,
   required String title,

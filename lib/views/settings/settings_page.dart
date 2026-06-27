@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 
+/// Tela de configurações.
+///
+/// Atua como camada visual para alterar preferências do usuário, encaminhando
+/// mudanças de tema e mensagens para o SettingsViewModel.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -15,10 +19,10 @@ class SettingsPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Configurações'),
+            title: const Text('ConfiguraÃ§Ãµes'),
             actions: [
               IconButton(
-                tooltip: 'Restaurar padrão',
+                tooltip: 'Restaurar padrÃ£o',
                 onPressed: viewModel.restaurarPadrao,
                 icon: const Icon(Icons.restart_alt),
               ),
@@ -26,7 +30,7 @@ class SettingsPage extends StatelessWidget {
           ),
           body: ListView(
             children: [
-              const _SettingsSectionTitle(title: 'Aparência'),
+              const _SettingsSectionTitle(title: 'AparÃªncia'),
               RadioGroup<AppThemeMode>(
                 groupValue: configuracoes.themeMode,
                 onChanged: (value) {
@@ -56,7 +60,7 @@ class SettingsPage extends StatelessWidget {
               SwitchListTile(
                 title: const Text('Mostrar mensagens do sistema'),
                 subtitle: const Text(
-                  'Exibe avisos simples após salvar, compartilhar ou concluir ações.',
+                  'Exibe avisos simples apÃ³s salvar, compartilhar ou concluir aÃ§Ãµes.',
                 ),
                 value: configuracoes.showSystemMessages,
                 onChanged: viewModel.alterarMensagensDoSistema,

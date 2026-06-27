@@ -1,8 +1,12 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:path_provider/path_provider.dart';
 
+/// Serviço responsável por manipular arquivos internos do FotoRoom.
+///
+/// Ele concentra criação de diretórios, cópia de imagens, salvamento de edições
+/// e preparação de arquivos para compartilhamento.
 class FileStorageService {
   static const String _appDirectoryName = 'fotoroom';
   static const String _projectsDirectoryName = 'projects';
@@ -69,7 +73,7 @@ class FileStorageService {
     final sourceFile = File(sourceImagePath);
 
     if (!await sourceFile.exists()) {
-      throw Exception('Imagem original não encontrada.');
+      throw Exception('Imagem original nÃ£o encontrada.');
     }
 
     final projectDirectory = await _obterDiretorioDoProjeto(projectId);
@@ -105,7 +109,7 @@ class FileStorageService {
     final sourceFile = File(imagePath);
 
     if (!await sourceFile.exists()) {
-      throw Exception('Arquivo de imagem não encontrado.');
+      throw Exception('Arquivo de imagem nÃ£o encontrado.');
     }
 
     final exportsDirectory = await _obterDiretorioDeExportacoes();

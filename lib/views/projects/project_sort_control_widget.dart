@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../viewmodels/project_sort_option.dart';
 
+/// Widget visual para escolha da ordenação da galeria.
+///
+/// Ele apenas apresenta as opções disponíveis e informa a seleção escolhida por
+/// callback, sem ordenar diretamente os projetos.
 class ProjectSortControlWidget extends StatelessWidget {
   final ProjectSortOption selectedOption;
   final ValueChanged<ProjectSortOption> onChanged;

@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 import '../models/project_model.dart';
 import '../services/file_storage_service.dart';
 
+/// ViewModel responsável pelo estado do projeto aberto no editor.
+///
+/// Ele informa qual imagem está ativa e delega o salvamento de arquivos ao
+/// FileStorageService.
+///
+/// No MVVM, mantém o estado consumido pela tela de edição; no GRASP, coordena
+/// as ações de abertura, fechamento e atualização do projeto editado.
 class EditorViewModel extends ChangeNotifier {
   final FileStorageService _fileStorageService;
 

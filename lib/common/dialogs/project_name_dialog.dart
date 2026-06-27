@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Diálogo reutilizável para informar ou alterar o nome de um projeto.
+///
+/// Esse helper mantém o formulário de nomeação em um único ponto, permitindo
+/// reutilização na criação e na renomeação de projetos.
 Future<String?> showProjectNameDialog({
   required BuildContext context,
   required String title,

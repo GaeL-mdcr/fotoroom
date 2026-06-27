@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../models/app_settings_model.dart';
 import '../repositories/settings_repository.dart';
 
+/// ViewModel responsável por coordenar as configurações da aplicação.
+///
+/// Ele mantém o estado das preferências, delega a persistência ao repositório e
+/// notifica a interface quando tema ou mensagens do sistema mudam.
 class SettingsViewModel extends ChangeNotifier {
   final SettingsRepository _settingsRepository;
 

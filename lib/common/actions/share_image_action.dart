@@ -1,10 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/system_message_service.dart';
 import '../../viewmodels/export_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 
+/// Ação reutilizável para compartilhar imagens salvas.
+///
+/// Essa classe evita duplicação entre a galeria e o editor, mantendo o fluxo
+/// de compartilhamento em um único ponto da aplicação.
 class ShareImageAction {
   const ShareImageAction._();
 
@@ -15,7 +19,7 @@ class ShareImageAction {
     if (imagePath == null || imagePath.trim().isEmpty) {
       context.read<SystemMessageService>().mostrarErro(
         context: context,
-        mensagem: 'Nenhuma imagem salva disponível para compartilhar.',
+        mensagem: 'Nenhuma imagem salva disponÃ­vel para compartilhar.',
       );
 
       return false;
@@ -32,7 +36,7 @@ class ShareImageAction {
     final mensagem = sucesso
         ? 'Compartilhamento solicitado.'
         : exportViewModel.mensagemErro ??
-              'Não foi possível compartilhar a imagem.';
+              'NÃ£o foi possÃ­vel compartilhar a imagem.';
 
     final mensagensAtivas = context
         .read<SettingsViewModel>()
