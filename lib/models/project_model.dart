@@ -6,6 +6,8 @@ class ProjectModel {
   final String? thumbnailPath;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isPinned;
+  final int pinnedIndex;
 
   const ProjectModel({
     required this.id,
@@ -15,6 +17,8 @@ class ProjectModel {
     this.thumbnailPath,
     required this.createdAt,
     required this.updatedAt,
+    required this.isPinned,
+    required this.pinnedIndex,
   });
 
   String get currentImagePath {
@@ -39,6 +43,8 @@ class ProjectModel {
     String? thumbnailPath,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isPinned,
+    int? pinnedIndex,
   }) {
     return ProjectModel(
       id: id ?? this.id,
@@ -48,6 +54,8 @@ class ProjectModel {
       thumbnailPath: thumbnailPath ?? this.thumbnailPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isPinned: isPinned ?? this.isPinned,
+      pinnedIndex: pinnedIndex ?? this.pinnedIndex,
     );
   }
 
@@ -60,6 +68,8 @@ class ProjectModel {
       'thumbnailPath': thumbnailPath,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'isPinned': isPinned,
+      'pinnedIndex': pinnedIndex,
     };
   }
 
@@ -72,6 +82,8 @@ class ProjectModel {
       thumbnailPath: map['thumbnailPath'] as String?,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
+      isPinned: map['isPinned'] as bool? ?? false,
+      pinnedIndex: map['pinnedIndex'] as int? ?? 0,
     );
   }
 }

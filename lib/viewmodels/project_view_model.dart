@@ -38,11 +38,13 @@ class ProjectViewModel extends ChangeNotifier {
   }
 
   List<ProjectModel> get projetosOrdenados {
-    final projetosOrdenados = List<ProjectModel>.from(_projetos);
+    final fixados = _projetos.where((projeto) => projeto.isPinned).toList()
+      ..sort((a, b) => a.pinnedIndex.compareTo(b.pinnedIndex));
 
-    projetosOrdenados.sort(_compararProjetos);
+    final naoFixados = _projetos.where((projeto) => !projeto.isPinned).toList()
+      ..sort(_compararProjetosNaoFixados);
 
-    return projetosOrdenados;
+    return [...fixados, ...naoFixados];
   }
 
   void alterarOrdenacao(ProjectSortOption option) {
@@ -195,6 +197,45 @@ class ProjectViewModel extends ChangeNotifier {
     await _salvarProjetoERecarregar(projetoAtualizado);
   }
 
+  Future<void> alternarFixado(String id) async {
+    final projeto = _buscarProjetoPorId(id);
+
+    if (projeto == null) {
+      return;
+    }
+
+    final vaiFixar = !projeto.isPinned;
+
+    final novoPinnedIndex = vaiFixar ? _proximoPinnedIndex() : 0;
+
+    final projetoAtualizado = projeto.copyWith(
+      isPinned: vaiFixar,
+      pinnedIndex: novoPinnedIndex,
+      updatedAt: DateTime.now(),
+    );
+
+    await _salvarProjetoERecarregar(projetoAtualizado);
+  }
+
+  Future<void> reordenarProjetosFixados(
+    List<ProjectModel> projetosReordenados,
+  ) async {
+    final fixadosReordenados = projetosReordenados
+        .where((projeto) => projeto.isPinned)
+        .toList();
+
+    for (var index = 0; index < fixadosReordenados.length; index++) {
+      final projeto = fixadosReordenados[index];
+
+      await _repository.salvarProjeto(
+        projeto.copyWith(pinnedIndex: index, updatedAt: DateTime.now()),
+      );
+    }
+
+    await _recarregarProjetos();
+    notifyListeners();
+  }
+
   ProjectModel? _buscarProjetoPorId(String id) {
     for (final projeto in _projetos) {
       if (projeto.id == id) {
@@ -205,7 +246,21 @@ class ProjectViewModel extends ChangeNotifier {
     return null;
   }
 
-  int _compararProjetos(ProjectModel a, ProjectModel b) {
+  int _proximoPinnedIndex() {
+    final fixados = _projetos.where((projeto) => projeto.isPinned);
+
+    if (fixados.isEmpty) {
+      return 0;
+    }
+
+    final maiorIndex = fixados
+        .map((projeto) => projeto.pinnedIndex)
+        .reduce((a, b) => a > b ? a : b);
+
+    return maiorIndex + 1;
+  }
+
+  int _compararProjetosNaoFixados(ProjectModel a, ProjectModel b) {
     switch (_sortOption) {
       case ProjectSortOption.newest:
         return b.updatedAt.compareTo(a.updatedAt);

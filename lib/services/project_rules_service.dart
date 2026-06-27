@@ -38,6 +38,8 @@ class ProjectRulesService {
       thumbnailPath: caminhoImagemOriginal,
       createdAt: agora,
       updatedAt: agora,
+      isPinned: false,
+      pinnedIndex: 0,
     );
 
     return Result.success(projeto);

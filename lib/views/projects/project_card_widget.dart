@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 
 import '../../models/project_model.dart';
 
-enum ProjectCardMenuAction { rename, share, delete }
+enum ProjectCardMenuAction { rename, share, pin, delete }
 
 class ProjectCardWidget extends StatelessWidget {
   final ProjectModel project;
   final VoidCallback onOpen;
   final VoidCallback onRename;
   final VoidCallback onShare;
+  final VoidCallback onTogglePin;
   final VoidCallback onDelete;
 
   const ProjectCardWidget({
@@ -19,6 +20,7 @@ class ProjectCardWidget extends StatelessWidget {
     required this.onOpen,
     required this.onRename,
     required this.onShare,
+    required this.onTogglePin,
     required this.onDelete,
   });
 
@@ -40,12 +42,31 @@ class ProjectCardWidget extends StatelessWidget {
               imagePath: imagePath,
               imageVersion: project.updatedAt.microsecondsSinceEpoch,
             ),
+            if (project.isPinned)
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.push_pin,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
             Positioned(
               top: 4,
               right: 4,
               child: _ProjectMenuButton(
+                isPinned: project.isPinned,
                 onRename: onRename,
                 onShare: onShare,
+                onTogglePin: onTogglePin,
                 onDelete: onDelete,
               ),
             ),
@@ -121,13 +142,17 @@ class _ProjectNameOverlay extends StatelessWidget {
 }
 
 class _ProjectMenuButton extends StatelessWidget {
+  final bool isPinned;
   final VoidCallback onRename;
   final VoidCallback onShare;
+  final VoidCallback onTogglePin;
   final VoidCallback onDelete;
 
   const _ProjectMenuButton({
+    required this.isPinned,
     required this.onRename,
     required this.onShare,
+    required this.onTogglePin,
     required this.onDelete,
   });
 
@@ -152,22 +177,30 @@ class _ProjectMenuButton extends StatelessWidget {
             onShare();
             break;
 
+          case ProjectCardMenuAction.pin:
+            onTogglePin();
+            break;
+
           case ProjectCardMenuAction.delete:
             onDelete();
             break;
         }
       },
       itemBuilder: (context) {
-        return const [
-          PopupMenuItem(
+        return [
+          const PopupMenuItem(
             value: ProjectCardMenuAction.rename,
             child: Text('Renomear'),
           ),
-          PopupMenuItem(
+          const PopupMenuItem(
             value: ProjectCardMenuAction.share,
             child: Text('Compartilhar'),
           ),
           PopupMenuItem(
+            value: ProjectCardMenuAction.pin,
+            child: Text(isPinned ? 'Desfixar' : 'Fixar no topo'),
+          ),
+          const PopupMenuItem(
             value: ProjectCardMenuAction.delete,
             child: Text('Excluir'),
           ),
