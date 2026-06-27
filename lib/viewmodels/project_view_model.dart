@@ -21,12 +21,10 @@ class ProjectViewModel extends ChangeNotifier {
 
   List<ProjectModel> _projetos = [];
 
-  ProjectModel? _projetoSelecionado;
   bool _carregando = false;
   String? _mensagemErro;
 
   List<ProjectModel> get projetos => List.unmodifiable(_projetos);
-  ProjectModel? get projetoSelecionado => _projetoSelecionado;
   bool get carregando => _carregando;
   String? get mensagemErro => _mensagemErro;
 
@@ -84,7 +82,6 @@ class ProjectViewModel extends ChangeNotifier {
       await _repository.salvarProjeto(projeto);
 
       _projetos = await _repository.listarProjetos();
-      _projetoSelecionado = projeto;
       _mensagemErro = null;
 
       notifyListeners();
@@ -128,11 +125,6 @@ class ProjectViewModel extends ChangeNotifier {
     }
   }
 
-  void selecionarProjeto(ProjectModel projeto) {
-    _projetoSelecionado = projeto;
-    notifyListeners();
-  }
-
   Future<void> renomearProjeto(String id, String novoNome) async {
     final projeto = _buscarProjetoPorId(id);
 
@@ -152,10 +144,6 @@ class ProjectViewModel extends ChangeNotifier {
     await _repository.excluirProjeto(id);
 
     _projetos = await _repository.listarProjetos();
-
-    if (_projetoSelecionado?.id == id) {
-      _projetoSelecionado = null;
-    }
 
     notifyListeners();
   }
@@ -193,10 +181,6 @@ class ProjectViewModel extends ChangeNotifier {
     await _repository.salvarProjeto(projeto);
 
     _projetos = await _repository.listarProjetos();
-
-    if (_projetoSelecionado?.id == projeto.id) {
-      _projetoSelecionado = projeto;
-    }
 
     notifyListeners();
   }

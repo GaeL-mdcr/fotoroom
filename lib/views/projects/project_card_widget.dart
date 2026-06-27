@@ -8,6 +8,7 @@ class ProjectCardWidget extends StatelessWidget {
   final ProjectModel project;
   final VoidCallback onOpen;
   final VoidCallback onRename;
+  final VoidCallback onShare;
   final VoidCallback onDelete;
 
   const ProjectCardWidget({
@@ -15,6 +16,7 @@ class ProjectCardWidget extends StatelessWidget {
     required this.project,
     required this.onOpen,
     required this.onRename,
+    required this.onShare,
     required this.onDelete,
   });
 
@@ -39,7 +41,11 @@ class ProjectCardWidget extends StatelessWidget {
             Positioned(
               top: 4,
               right: 4,
-              child: _ProjectMenuButton(onRename: onRename, onDelete: onDelete),
+              child: _ProjectMenuButton(
+                onRename: onRename,
+                onShare: onShare,
+                onDelete: onDelete,
+              ),
             ),
             Positioned(
               left: 0,
@@ -114,42 +120,48 @@ class _ProjectNameOverlay extends StatelessWidget {
 
 class _ProjectMenuButton extends StatelessWidget {
   final VoidCallback onRename;
+  final VoidCallback onShare;
   final VoidCallback onDelete;
 
-  const _ProjectMenuButton({required this.onRename, required this.onDelete});
+  const _ProjectMenuButton({
+    required this.onRename,
+    required this.onShare,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
-      shape: const CircleBorder(),
-      child: SizedBox(
-        width: 26,
-        height: 26,
-        child: PopupMenuButton<String>(
-          padding: EdgeInsets.zero,
-          iconSize: 16,
-          constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
-          icon: const Icon(Icons.more_vert),
-          tooltip: 'Opções do projeto',
-          onSelected: (value) {
-            if (value == 'rename') {
-              onRename();
-              return;
-            }
-
-            if (value == 'delete') {
-              onDelete();
-            }
-          },
-          itemBuilder: (context) {
-            return const [
-              PopupMenuItem(value: 'rename', child: Text('Renomear')),
-              PopupMenuItem(value: 'delete', child: Text('Excluir')),
-            ];
-          },
-        ),
+    return PopupMenuButton<String>(
+      padding: EdgeInsets.zero,
+      iconSize: 20,
+      icon: const Icon(
+        Icons.more_vert,
+        color: Colors.white,
+        shadows: [Shadow(color: Colors.black87, blurRadius: 4)],
       ),
+      tooltip: 'Opções do projeto',
+      onSelected: (value) {
+        if (value == 'rename') {
+          onRename();
+          return;
+        }
+
+        if (value == 'share') {
+          onShare();
+          return;
+        }
+
+        if (value == 'delete') {
+          onDelete();
+        }
+      },
+      itemBuilder: (context) {
+        return const [
+          PopupMenuItem(value: 'rename', child: Text('Renomear')),
+          PopupMenuItem(value: 'share', child: Text('Compartilhar')),
+          PopupMenuItem(value: 'delete', child: Text('Excluir')),
+        ];
+      },
     );
   }
 }

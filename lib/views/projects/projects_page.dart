@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../common/actions/share_image_action.dart';
 import '../../common/dialogs/confirmation_dialog.dart';
 import '../../common/dialogs/project_name_dialog.dart';
-import '../../common/dialogs/unsaved_changes_dialog.dart';
 import '../../common/widgets/app_empty_state_widget.dart';
 import '../../services/system_message_service.dart';
 import '../../viewmodels/editor_view_model.dart';
@@ -60,8 +60,6 @@ class ProjectsPage extends StatelessWidget {
 
                   if (!context.mounted || !podeAbrir) return;
 
-                  viewModel.selecionarProjeto(projeto);
-
                   context.read<EditorViewModel>().carregarProjeto(projeto);
 
                   context.read<SystemMessageService>().mostrarInformacao(
@@ -77,6 +75,12 @@ class ProjectsPage extends StatelessWidget {
                     context: context,
                     projectId: projeto.id,
                     currentName: projeto.name,
+                  );
+                },
+                onShare: () {
+                  ShareImageAction.compartilharImagemSalva(
+                    context: context,
+                    imagePath: projeto.currentImagePath,
                   );
                 },
                 onDelete: () {
@@ -199,33 +203,11 @@ class ProjectsPage extends StatelessWidget {
       return true;
     }
 
-    if (editorViewModel.possuiAlteracoesNaoSalvas) {
-      final action = await showUnsavedChangesDialog(
-        context: context,
-        message:
-            'Existe uma edição em andamento. O que deseja fazer antes de abrir o projeto "$projectName"?',
-      );
-
-      if (!context.mounted) return false;
-
-      switch (action) {
-        case UnsavedChangesAction.cancel:
-          return false;
-
-        case UnsavedChangesAction.discard:
-          return true;
-
-        case UnsavedChangesAction.save:
-          editorViewModel.marcarComoSalvo();
-          return true;
-      }
-    }
-
     final confirmou = await showConfirmationDialog(
       context: context,
       title: 'Trocar projeto',
       message:
-          'Já existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"?',
+          'Já existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"? Alterações não salvas no editor podem ser perdidas.',
       cancelLabel: 'Cancelar',
       confirmLabel: 'Abrir projeto',
     );

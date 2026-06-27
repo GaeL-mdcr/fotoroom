@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,13 +9,15 @@ import '../../common/app_colors.dart';
 
 class ProImageEditorFacadeWidget extends StatefulWidget {
   final String imagePath;
-  final ValueChanged<Uint8List> onImageEditingComplete;
+  final Future<bool> Function(Uint8List bytes) onSaveImage;
+  final Future<bool> Function() onShareSavedImage;
   final VoidCallback onCloseEditor;
 
   const ProImageEditorFacadeWidget({
     super.key,
     required this.imagePath,
-    required this.onImageEditingComplete,
+    required this.onSaveImage,
+    required this.onShareSavedImage,
     required this.onCloseEditor,
   });
 
@@ -26,7 +29,8 @@ class ProImageEditorFacadeWidget extends StatefulWidget {
 
 class _ProImageEditorFacadeWidgetState
     extends State<ProImageEditorFacadeWidget> {
-  bool _finalizando = false;
+  bool _salvando = false;
+  bool _compartilhando = false;
 
   ThemeData _buildEditorTheme(BuildContext context) {
     final baseTheme = Theme.of(context);
@@ -63,38 +67,66 @@ class _ProImageEditorFacadeWidgetState
     );
   }
 
+  Future<void> _salvarSemFechar(ProImageEditorState editor) async {
+    if (_salvando || _compartilhando) return;
+
+    setState(() {
+      _salvando = true;
+    });
+
+    try {
+      final bytes = await editor.captureEditorImage();
+
+      await widget.onSaveImage(bytes);
+
+      if (!mounted) return;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _compartilharImagemSalva() async {
+    if (_salvando || _compartilhando) return;
+
+    setState(() {
+      _compartilhando = true;
+    });
+
+    try {
+      await widget.onShareSavedImage();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _compartilhando = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProImageEditor.file(
       File(widget.imagePath),
       callbacks: ProImageEditorCallbacks(
         onImageEditingComplete: (Uint8List bytes) async {
-          if (_finalizando) {
-            return;
-          }
-
-          _finalizando = true;
-
-          widget.onImageEditingComplete(bytes);
+          await widget.onSaveImage(bytes);
         },
         onCloseEditor: (_) {
-          if (_finalizando) {
-            return;
-          }
-
-          _finalizando = true;
-
           widget.onCloseEditor();
         },
       ),
       configs: ProImageEditorConfigs(
         theme: _buildEditorTheme(context),
-        mainEditor: const MainEditorConfigs(
+        mainEditor: MainEditorConfigs(
           enableCloseButton: true,
           enableZoom: true,
           enableDoubleTapZoom: true,
           enableSubEditorPage: true,
-          tools: [
+          tools: const [
             SubEditorMode.paint,
             SubEditorMode.text,
             SubEditorMode.cropRotate,
@@ -103,7 +135,60 @@ class _ProImageEditorFacadeWidgetState
             SubEditorMode.blur,
             SubEditorMode.emoji,
           ],
-          style: MainEditorStyle(
+          widgets: MainEditorWidgets(
+            appBar: (editor, rebuildStream) {
+              return ReactiveAppbar(
+                stream: rebuildStream,
+                builder: (context) {
+                  return AppBar(
+                    backgroundColor: AppColors.primaryDark,
+                    foregroundColor: AppColors.white,
+                    title: const Text('Editar imagem'),
+                    leading: IconButton(
+                      tooltip: 'Fechar editor',
+                      icon: const Icon(Icons.close),
+                      onPressed: widget.onCloseEditor,
+                    ),
+                    actions: [
+                      IconButton(
+                        tooltip: 'Salvar',
+                        onPressed: _salvando || _compartilhando
+                            ? null
+                            : () {
+                                _salvarSemFechar(editor);
+                              },
+                        icon: _salvando
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.save),
+                      ),
+                      IconButton(
+                        tooltip: 'Compartilhar imagem salva',
+                        onPressed: _salvando || _compartilhando
+                            ? null
+                            : _compartilharImagemSalva,
+                        icon: _compartilhando
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.share),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          style: const MainEditorStyle(
             background: AppColors.black,
             appBarBackground: AppColors.primaryDark,
             appBarColor: AppColors.white,

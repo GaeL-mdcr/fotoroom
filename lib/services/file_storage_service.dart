@@ -71,15 +71,10 @@ class FileStorageService {
   Future<String> salvarImagemEditada({
     required String projectId,
     required Uint8List bytes,
-    required bool createNewFile,
   }) async {
     final projectDirectory = await _obterDiretorioDoProjeto(projectId);
 
-    final fileName = createNewFile
-        ? 'edited_${DateTime.now().millisecondsSinceEpoch}.jpg'
-        : 'edited.jpg';
-
-    final file = File('${projectDirectory.path}/$fileName');
+    final file = File('${projectDirectory.path}/edited.jpg');
 
     await file.writeAsBytes(bytes, flush: true);
 

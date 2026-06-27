@@ -9,12 +9,14 @@ class ProImageEditorAdapter implements ImageEditorAdapter {
   @override
   Widget buildEditor({
     required String imagePath,
-    required ValueChanged<Uint8List> onImageEditingComplete,
+    required Future<bool> Function(Uint8List bytes) onSaveImage,
+    required Future<bool> Function() onShareSavedImage,
     required VoidCallback onCloseEditor,
   }) {
     return ProImageEditorFacadeWidget(
       imagePath: imagePath,
-      onImageEditingComplete: onImageEditingComplete,
+      onSaveImage: onSaveImage,
+      onShareSavedImage: onShareSavedImage,
       onCloseEditor: onCloseEditor,
     );
   }
