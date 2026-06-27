@@ -7,8 +7,6 @@ import 'project_repository.dart';
 class ProjectLocalRepository implements ProjectRepository {
   final FileStorageService _storageService;
 
-  static const String _projectsFileName = 'projetos.json';
-
   List<ProjectModel> _projetos = [];
   bool _carregado = false;
 
@@ -25,9 +23,7 @@ class ProjectLocalRepository implements ProjectRepository {
   Future<void> salvarProjeto(ProjectModel projeto) async {
     await _garantirCarregamento();
 
-    final index = _projetos.indexWhere(
-      (item) => item.id == projeto.id,
-    );
+    final index = _projetos.indexWhere((item) => item.id == projeto.id);
 
     if (index == -1) {
       _projetos.add(projeto);
@@ -42,9 +38,7 @@ class ProjectLocalRepository implements ProjectRepository {
   Future<void> excluirProjeto(String id) async {
     await _garantirCarregamento();
 
-    _projetos.removeWhere(
-      (projeto) => projeto.id == id,
-    );
+    _projetos.removeWhere((projeto) => projeto.id == id);
 
     await _storageService.excluirDiretorioDoProjeto(id);
     await _salvarProjetosNoArquivo();
@@ -54,7 +48,7 @@ class ProjectLocalRepository implements ProjectRepository {
     if (_carregado) return;
 
     final conteudo = await _storageService.lerArquivoInterno(
-      _projectsFileName,
+      _storageService.projectsFileName,
     );
 
     if (conteudo == null || conteudo.trim().isEmpty) {
@@ -68,9 +62,8 @@ class ProjectLocalRepository implements ProjectRepository {
 
       _projetos = json
           .map(
-            (item) => ProjectModel.fromMap(
-              Map<String, dynamic>.from(item as Map),
-            ),
+            (item) =>
+                ProjectModel.fromMap(Map<String, dynamic>.from(item as Map)),
           )
           .toList();
     } catch (_) {
@@ -86,7 +79,7 @@ class ProjectLocalRepository implements ProjectRepository {
     final conteudo = jsonEncode(json);
 
     await _storageService.salvarArquivoInterno(
-      nomeArquivo: _projectsFileName,
+      nomeArquivo: _storageService.projectsFileName,
       conteudo: conteudo,
     );
   }

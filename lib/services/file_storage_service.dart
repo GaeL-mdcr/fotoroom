@@ -4,6 +4,20 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 
 class FileStorageService {
+  static const String _appDirectoryName = 'fotoroom';
+  static const String _projectsDirectoryName = 'projects';
+  static const String _exportsDirectoryName = 'exports';
+
+  static const String _projectsFileName = 'projects.json';
+  static const String _settingsFileName = 'settings.json';
+
+  static const String _originalImageFileName = 'original.jpg';
+  static const String _editedImageFileName = 'edited.jpg';
+  static const String _sharedImageFileName = 'fotoroom_compartilhamento.jpg';
+
+  String get projectsFileName => _projectsFileName;
+  String get settingsFileName => _settingsFileName;
+
   Future<Directory> _obterDiretorioBase() async {
     return getApplicationDocumentsDirectory();
   }
@@ -11,7 +25,7 @@ class FileStorageService {
   Future<Directory> _obterDiretorioDoFotoRoom() async {
     final baseDirectory = await _obterDiretorioBase();
 
-    final directory = Directory('${baseDirectory.path}/fotoroom');
+    final directory = Directory('${baseDirectory.path}/$_appDirectoryName');
 
     if (!await directory.exists()) {
       await directory.create(recursive: true);
@@ -24,7 +38,7 @@ class FileStorageService {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
     final projectDirectory = Directory(
-      '${fotoroomDirectory.path}/projects/$projectId',
+      '${fotoroomDirectory.path}/$_projectsDirectoryName/$projectId',
     );
 
     if (!await projectDirectory.exists()) {
@@ -37,7 +51,9 @@ class FileStorageService {
   Future<Directory> _obterDiretorioDeExportacoes() async {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
-    final exportsDirectory = Directory('${fotoroomDirectory.path}/exports');
+    final exportsDirectory = Directory(
+      '${fotoroomDirectory.path}/$_exportsDirectoryName',
+    );
 
     if (!await exportsDirectory.exists()) {
       await exportsDirectory.create(recursive: true);
@@ -59,8 +75,12 @@ class FileStorageService {
     final projectDirectory = await _obterDiretorioDoProjeto(projectId);
 
     final extension = _obterExtensaoArquivo(sourceImagePath);
+    final originalImageFileName = _originalImageFileName.replaceFirst(
+      '.jpg',
+      '.$extension',
+    );
     final destinationFile = File(
-      '${projectDirectory.path}/original.$extension',
+      '${projectDirectory.path}/$originalImageFileName',
     );
 
     await sourceFile.copy(destinationFile.path);
@@ -74,7 +94,7 @@ class FileStorageService {
   }) async {
     final projectDirectory = await _obterDiretorioDoProjeto(projectId);
 
-    final file = File('${projectDirectory.path}/edited.jpg');
+    final file = File('${projectDirectory.path}/$_editedImageFileName');
 
     await file.writeAsBytes(bytes, flush: true);
 
@@ -90,9 +110,7 @@ class FileStorageService {
 
     final exportsDirectory = await _obterDiretorioDeExportacoes();
 
-    final exportedFile = File(
-      '${exportsDirectory.path}/fotoroom_compartilhamento.jpg',
-    );
+    final exportedFile = File('${exportsDirectory.path}/$_sharedImageFileName');
 
     if (await exportedFile.exists()) {
       await exportedFile.delete();
@@ -141,7 +159,7 @@ class FileStorageService {
     final fotoroomDirectory = await _obterDiretorioDoFotoRoom();
 
     final projectDirectory = Directory(
-      '${fotoroomDirectory.path}/projects/$projectId',
+      '${fotoroomDirectory.path}/$_projectsDirectoryName/$projectId',
     );
 
     if (!await projectDirectory.exists()) {

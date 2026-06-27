@@ -7,13 +7,13 @@ import 'settings_repository.dart';
 class SettingsLocalRepository implements SettingsRepository {
   final FileStorageService _storageService;
 
-  static const String _settingsFileName = 'configuracoes.json';
-
   SettingsLocalRepository(this._storageService);
 
   @override
   Future<AppSettingsModel> carregarConfiguracoes() async {
-    final conteudo = await _storageService.lerArquivoInterno(_settingsFileName);
+    final conteudo = await _storageService.lerArquivoInterno(
+      _storageService.settingsFileName,
+    );
 
     if (conteudo == null || conteudo.trim().isEmpty) {
       return const AppSettingsModel();
@@ -33,7 +33,7 @@ class SettingsLocalRepository implements SettingsRepository {
     final conteudo = jsonEncode(configuracoes.toMap());
 
     await _storageService.salvarArquivoInterno(
-      nomeArquivo: _settingsFileName,
+      nomeArquivo: _storageService.settingsFileName,
       conteudo: conteudo,
     );
   }
