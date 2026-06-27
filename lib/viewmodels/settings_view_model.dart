@@ -7,20 +7,13 @@ class SettingsViewModel extends ChangeNotifier {
   final SettingsRepository _settingsRepository;
 
   AppSettingsModel _configuracoes = const AppSettingsModel();
-  bool _carregando = false;
 
   SettingsViewModel(this._settingsRepository);
 
   AppSettingsModel get configuracoes => _configuracoes;
-  bool get carregando => _carregando;
 
   Future<void> carregarConfiguracoes() async {
-    _carregando = true;
-    notifyListeners();
-
     _configuracoes = await _settingsRepository.carregarConfiguracoes();
-
-    _carregando = false;
     notifyListeners();
   }
 

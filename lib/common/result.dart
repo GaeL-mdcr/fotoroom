@@ -6,8 +6,6 @@ class Result<T> {
 
   const Result.failure(String message) : data = null, error = message;
 
-  bool get isSuccess => error == null;
-
   bool get isFailure => error != null;
 
   T get dataOrThrow {
@@ -18,9 +16,5 @@ class Result<T> {
     }
 
     return value;
-  }
-
-  String get errorOrDefault {
-    return error ?? 'Erro desconhecido.';
   }
 }

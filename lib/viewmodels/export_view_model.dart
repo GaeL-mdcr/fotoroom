@@ -1,40 +1,27 @@
 import 'package:flutter/material.dart';
 
-import '../services/export_rules_service.dart';
-import '../services/image_export_service.dart';
+import '../services/file_storage_service.dart';
 import '../services/share_service.dart';
 
 class ExportViewModel extends ChangeNotifier {
-  final ImageExportService _imageExportService;
+  final FileStorageService _fileStorageService;
   final ShareService _shareService;
-  final ExportRulesService _exportRulesService;
 
   bool _compartilhando = false;
   String? _mensagemErro;
 
-  ExportViewModel(
-    this._imageExportService,
-    this._shareService,
-    this._exportRulesService,
-  );
+  ExportViewModel(this._fileStorageService, this._shareService);
 
   bool get compartilhando => _compartilhando;
-
   String? get mensagemErro => _mensagemErro;
 
-  Future<bool> compartilharImagem({
-    required String imagePath,
-  }) async {
+  Future<bool> compartilharImagem({required String imagePath}) async {
     if (_compartilhando) {
       return false;
     }
 
-    final validacao = _exportRulesService.validarExportacao(
-      imagePath: imagePath,
-    );
-
-    if (validacao.isFailure) {
-      _mensagemErro = validacao.error;
+    if (imagePath.trim().isEmpty) {
+      _mensagemErro = 'Nenhuma imagem final foi encontrada para exportação.';
       notifyListeners();
       return false;
     }
@@ -44,13 +31,11 @@ class ExportViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final caminhoExportado = await _imageExportService.exportarImagemJpg(
+      final caminhoExportado = await _fileStorageService.exportarImagemJpg(
         imagePath: imagePath,
       );
 
-      final sucesso = await _shareService.compartilharArquivo(
-        caminhoExportado,
-      );
+      final sucesso = await _shareService.compartilharArquivo(caminhoExportado);
 
       if (!sucesso) {
         _mensagemErro = 'Não foi possível compartilhar a imagem.';

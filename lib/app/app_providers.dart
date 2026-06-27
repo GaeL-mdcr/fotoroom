@@ -7,9 +7,7 @@ import '../repositories/project_repository.dart';
 import '../repositories/settings_local_repository.dart';
 import '../repositories/settings_repository.dart';
 import '../services/adapters/pro_image_editor_adapter.dart';
-import '../services/export_rules_service.dart';
 import '../services/file_storage_service.dart';
-import '../services/image_export_service.dart';
 import '../services/image_picker_service.dart';
 import '../services/project_rules_service.dart';
 import '../services/share_service.dart';
@@ -27,15 +25,9 @@ class AppProviders {
       Provider<FileStorageService>(create: (_) => FileStorageService()),
       Provider<ImagePickerService>(create: (_) => ImagePickerService()),
       Provider<ProjectRulesService>(create: (_) => ProjectRulesService()),
-      Provider<ExportRulesService>(create: (_) => ExportRulesService()),
       Provider<ShareService>(create: (_) => ShareService()),
       Provider<SystemMessageService>(create: (_) => SystemMessageService()),
       Provider<ImageEditorAdapter>(create: (_) => ProImageEditorAdapter()),
-      Provider<ImageExportService>(
-        create: (context) {
-          return ImageExportService(context.read<FileStorageService>());
-        },
-      ),
       Provider<ProjectRepository>(
         create: (context) {
           return ProjectLocalRepository(context.read<FileStorageService>());
@@ -68,9 +60,8 @@ class AppProviders {
       ChangeNotifierProvider<ExportViewModel>(
         create: (context) {
           return ExportViewModel(
-            context.read<ImageExportService>(),
+            context.read<FileStorageService>(),
             context.read<ShareService>(),
-            context.read<ExportRulesService>(),
           );
         },
       ),
