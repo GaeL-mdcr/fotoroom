@@ -40,7 +40,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _projetos = await _repository.listarProjetos();
+      await _recarregarProjetos();
     } catch (_) {
       _mensagemErro = 'Não foi possível carregar os projetos.';
     }
@@ -81,7 +81,7 @@ class ProjectViewModel extends ChangeNotifier {
 
       await _repository.salvarProjeto(projeto);
 
-      _projetos = await _repository.listarProjetos();
+      await _recarregarProjetos();
       _mensagemErro = null;
 
       notifyListeners();
@@ -126,6 +126,14 @@ class ProjectViewModel extends ChangeNotifier {
   }
 
   Future<void> renomearProjeto(String id, String novoNome) async {
+    final resultadoNome = _projectRulesService.validarNomeProjeto(novoNome);
+
+    if (resultadoNome.isFailure) {
+      _mensagemErro = resultadoNome.error;
+      notifyListeners();
+      return;
+    }
+
     final projeto = _buscarProjetoPorId(id);
 
     if (projeto == null) {
@@ -133,7 +141,7 @@ class ProjectViewModel extends ChangeNotifier {
     }
 
     final projetoAtualizado = projeto.copyWith(
-      name: novoNome,
+      name: resultadoNome.dataOrThrow,
       updatedAt: DateTime.now(),
     );
 
@@ -143,7 +151,7 @@ class ProjectViewModel extends ChangeNotifier {
   Future<void> excluirProjeto(String id) async {
     await _repository.excluirProjeto(id);
 
-    _projetos = await _repository.listarProjetos();
+    await _recarregarProjetos();
 
     notifyListeners();
   }
@@ -180,8 +188,12 @@ class ProjectViewModel extends ChangeNotifier {
   Future<void> _salvarProjetoERecarregar(ProjectModel projeto) async {
     await _repository.salvarProjeto(projeto);
 
-    _projetos = await _repository.listarProjetos();
+    await _recarregarProjetos();
 
     notifyListeners();
+  }
+
+  Future<void> _recarregarProjetos() async {
+    _projetos = await _repository.listarProjetos();
   }
 }

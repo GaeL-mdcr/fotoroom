@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/project_model.dart';
 
+enum ProjectCardMenuAction { rename, share, delete }
+
 class ProjectCardWidget extends StatelessWidget {
   final ProjectModel project;
   final VoidCallback onOpen;
@@ -131,7 +133,7 @@ class _ProjectMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
+    return PopupMenuButton<ProjectCardMenuAction>(
       padding: EdgeInsets.zero,
       iconSize: 20,
       icon: const Icon(
@@ -141,25 +143,34 @@ class _ProjectMenuButton extends StatelessWidget {
       ),
       tooltip: 'Opções do projeto',
       onSelected: (value) {
-        if (value == 'rename') {
-          onRename();
-          return;
-        }
+        switch (value) {
+          case ProjectCardMenuAction.rename:
+            onRename();
+            break;
 
-        if (value == 'share') {
-          onShare();
-          return;
-        }
+          case ProjectCardMenuAction.share:
+            onShare();
+            break;
 
-        if (value == 'delete') {
-          onDelete();
+          case ProjectCardMenuAction.delete:
+            onDelete();
+            break;
         }
       },
       itemBuilder: (context) {
         return const [
-          PopupMenuItem(value: 'rename', child: Text('Renomear')),
-          PopupMenuItem(value: 'share', child: Text('Compartilhar')),
-          PopupMenuItem(value: 'delete', child: Text('Excluir')),
+          PopupMenuItem(
+            value: ProjectCardMenuAction.rename,
+            child: Text('Renomear'),
+          ),
+          PopupMenuItem(
+            value: ProjectCardMenuAction.share,
+            child: Text('Compartilhar'),
+          ),
+          PopupMenuItem(
+            value: ProjectCardMenuAction.delete,
+            child: Text('Excluir'),
+          ),
         ];
       },
     );

@@ -18,7 +18,13 @@ class ProjectModel {
   });
 
   String get currentImagePath {
-    return editedImagePath ?? originalImagePath;
+    final editedPath = editedImagePath;
+
+    if (editedPath != null && editedPath.trim().isNotEmpty) {
+      return editedPath;
+    }
+
+    return originalImagePath;
   }
 
   bool get hasEditedImage {

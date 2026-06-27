@@ -2,15 +2,27 @@ import '../common/result.dart';
 import '../models/project_model.dart';
 
 class ProjectRulesService {
-  Result<ProjectModel> criarProjeto({
-    required String nome,
-    required String caminhoImagemOriginal,
-  }) {
+  Result<String> validarNomeProjeto(String nome) {
     final nomeValidado = nome.trim();
 
     if (nomeValidado.isEmpty) {
       return const Result.failure('O nome do projeto não pode ficar vazio.');
     }
+
+    return Result.success(nomeValidado);
+  }
+
+  Result<ProjectModel> criarProjeto({
+    required String nome,
+    required String caminhoImagemOriginal,
+  }) {
+    final resultadoNome = validarNomeProjeto(nome);
+
+    if (resultadoNome.isFailure) {
+      return Result.failure(resultadoNome.error!);
+    }
+
+    final nomeValidado = resultadoNome.dataOrThrow;
 
     if (caminhoImagemOriginal.trim().isEmpty) {
       return const Result.failure('Nenhuma imagem foi selecionada.');

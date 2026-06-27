@@ -106,6 +106,18 @@ class _ProImageEditorFacadeWidgetState
     }
   }
 
+  Widget _buildActionIcon({required bool loading, required IconData icon}) {
+    if (!loading) {
+      return Icon(icon);
+    }
+
+    return const SizedBox(
+      width: 18,
+      height: 18,
+      child: CircularProgressIndicator(strokeWidth: 2),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProImageEditor.file(
@@ -156,30 +168,20 @@ class _ProImageEditorFacadeWidgetState
                             : () {
                                 _salvarSemFechar(editor);
                               },
-                        icon: _salvando
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.save),
+                        icon: _buildActionIcon(
+                          loading: _salvando,
+                          icon: Icons.save,
+                        ),
                       ),
                       IconButton(
                         tooltip: 'Compartilhar imagem salva',
                         onPressed: _salvando || _compartilhando
                             ? null
                             : _compartilharImagemSalva,
-                        icon: _compartilhando
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.share),
+                        icon: _buildActionIcon(
+                          loading: _compartilhando,
+                          icon: Icons.share,
+                        ),
                       ),
                     ],
                   );
