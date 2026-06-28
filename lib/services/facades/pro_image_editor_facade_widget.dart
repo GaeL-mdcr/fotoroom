@@ -17,9 +17,6 @@ import '../../common/app_colors.dart';
 /// um subsistema complexo. Aqui, o subsistema complexo é o editor externo de
 /// imagens, e esta classe oferece uma entrada coesa para o restante do app.
 ///
-/// A classe também favorece High Cohesion, pois mantém em um único componente
-/// as responsabilidades relacionadas à integração visual e comportamental do
-/// editor externo.
 class ProImageEditorFacadeWidget extends StatefulWidget {
   /// Caminho da imagem que será entregue ao editor externo.
   /// A Facade não escolhe qual imagem usar; essa decisão vem da camada de
@@ -166,7 +163,7 @@ class _ProImageEditorFacadeWidgetState
       child: CircularProgressIndicator(strokeWidth: 2),
     );
   }
-
+  //Tradutor
   I18n _buildEditorI18n() {
     return const I18n(
       cancel: 'Cancelar',

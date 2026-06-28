@@ -5,15 +5,11 @@ import 'package:flutter/material.dart';
 /// Contrato usado pela aplicação para solicitar um editor de imagem.
 ///
 /// A tela depende desta abstração, e não diretamente do pacote externo.
-/// Isso reduz acoplamento e protege a aplicação contra mudanças no editor real.
 ///
 /// No padrão GoF Facade aplicado no FotoRoom, esta interface define o ponto
 /// de entrada que a aplicação conhece. A `EditorPage` depende deste contrato,
 /// e não da implementação concreta baseada no `pro_image_editor`.
 ///
-/// Essa decisão também favorece o princípio DIP do SOLID: a tela depende de uma
-/// abstração, enquanto a implementação concreta pode ser substituída com menor
-/// impacto no restante do sistema.
 abstract class ImageEditorAdapter {
   /// Cria o editor configurado para a aplicação.
   ///
