@@ -362,18 +362,14 @@ class _ProImageEditorFacadeWidgetState
         onImageEditingComplete: (Uint8List bytes) async {
           await widget.onSaveImage(bytes);
         },
-        onCloseEditor: (_) {
-          widget.onCloseEditor();
-        },
       ),
       // A configuração do editor externo fica concentrada aqui: tema, ferramentas,
-      // subeditores, AppBar customizada e comportamento visual. Esse é o principal
-      // papel da Facade neste projeto.
+      // subeditores, AppBar customizada e comportamento visual. 
       configs: ProImageEditorConfigs(
         theme: _buildEditorTheme(context),
         i18n: _buildEditorI18n(),
         mainEditor: MainEditorConfigs(
-          enableCloseButton: true,
+          enableCloseButton: false,
           enableZoom: true,
           enableDoubleTapZoom: true,
           enableSubEditorPage: true,
