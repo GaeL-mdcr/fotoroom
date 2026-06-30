@@ -73,7 +73,7 @@ class FileStorageService {
     final sourceFile = File(sourceImagePath);
 
     if (!await sourceFile.exists()) {
-      throw Exception('Imagem original nÃ£o encontrada.');
+      throw Exception('Imagem original não encontrada.');
     }
 
     final projectDirectory = await _obterDiretorioDoProjeto(projectId);
@@ -109,7 +109,7 @@ class FileStorageService {
     final sourceFile = File(imagePath);
 
     if (!await sourceFile.exists()) {
-      throw Exception('Arquivo de imagem nÃ£o encontrado.');
+      throw Exception('Arquivo de imagem não encontrado.');
     }
 
     final exportsDirectory = await _obterDiretorioDeExportacoes();

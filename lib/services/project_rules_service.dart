@@ -9,7 +9,7 @@ class ProjectRulesService {
     final nomeValidado = nome.trim();
 
     if (nomeValidado.isEmpty) {
-      return const Result.failure('O nome do projeto nÃ£o pode ficar vazio.');
+      return const Result.failure('O nome do projeto não pode ficar vazio.');
     }
 
     return Result.success(nomeValidado);

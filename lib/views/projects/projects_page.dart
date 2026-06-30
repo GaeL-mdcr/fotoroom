@@ -171,7 +171,7 @@ class ProjectsPage extends StatelessWidget {
       context: context,
       title: 'Excluir projeto',
       message:
-          'Deseja excluir o projeto "$projectName"? Essa aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.',
+          'Deseja excluir o projeto "$projectName"? Essa ação não poderá ser desfeita.',
       confirmLabel: 'Excluir',
     );
 
@@ -189,7 +189,7 @@ class ProjectsPage extends StatelessWidget {
 
     context.read<SystemMessageService>().mostrarInformacao(
       context: context,
-      mensagem: 'Projeto "$projectName" excluÃ­do.',
+      mensagem: 'Projeto "$projectName" excluído.',
       mensagensAtivas: _mensagensDoSistemaAtivas(context),
     );
   }
@@ -213,7 +213,7 @@ class ProjectsPage extends StatelessWidget {
       context: context,
       title: 'Trocar projeto',
       message:
-          'JÃ¡ existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"? AlteraÃ§Ãµes nÃ£o salvas no editor podem ser perdidas.',
+          'Já existe um projeto aberto no editor. Deseja fechar o projeto atual e abrir "$projectName"? Alterações não salvas no editor podem ser perdidas.',
       cancelLabel: 'Cancelar',
       confirmLabel: 'Abrir projeto',
     );

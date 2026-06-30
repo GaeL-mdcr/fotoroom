@@ -27,7 +27,7 @@ class ExportViewModel extends ChangeNotifier {
     }
 
     if (imagePath.trim().isEmpty) {
-      _mensagemErro = 'Nenhuma imagem final foi encontrada para exportaÃ§Ã£o.';
+      _mensagemErro = 'Nenhuma imagem final foi encontrada para exportação.';
       notifyListeners();
       return false;
     }
@@ -44,7 +44,7 @@ class ExportViewModel extends ChangeNotifier {
       final sucesso = await _shareService.compartilharArquivo(caminhoExportado);
 
       if (!sucesso) {
-        _mensagemErro = 'NÃ£o foi possÃ­vel compartilhar a imagem.';
+        _mensagemErro = 'Não foi possível compartilhar a imagem.';
       }
 
       return sucesso;

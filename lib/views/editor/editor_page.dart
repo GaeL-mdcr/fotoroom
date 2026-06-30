@@ -32,7 +32,7 @@ class EditorPage extends StatelessWidget {
               icon: Icons.edit_outlined,
               title: 'Nenhum projeto aberto',
               message:
-                  'Crie ou abra um projeto na aba Projetos para comeÃ§ar a editar.',
+                  'Crie ou abra um projeto na aba Projetos para começar a editar.',
             ),
           );
         }
@@ -44,8 +44,8 @@ class EditorPage extends StatelessWidget {
             appBar: AppBar(title: const Text('Editor')),
             body: const AppEmptyStateWidget(
               icon: Icons.image_not_supported_outlined,
-              title: 'Imagem indisponÃ­vel',
-              message: 'NÃ£o foi possÃ­vel carregar a imagem do projeto.',
+              title: 'Imagem indisponível',
+              message: 'Não foi possível carregar a imagem do projeto.',
             ),
           );
         }
@@ -140,7 +140,7 @@ class EditorPage extends StatelessWidget {
 
       context.read<SystemMessageService>().mostrarErro(
         context: context,
-        mensagem: 'NÃ£o foi possÃ­vel salvar a imagem.',
+        mensagem: 'Não foi possível salvar a imagem.',
       );
 
       return false;

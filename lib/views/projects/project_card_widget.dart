@@ -170,7 +170,7 @@ class _ProjectMenuButton extends StatelessWidget {
         color: Colors.white,
         shadows: [Shadow(color: Colors.black87, blurRadius: 4)],
       ),
-      tooltip: 'OpÃ§Ãµes do projeto',
+      tooltip: 'Opções do projeto',
       onSelected: (value) {
         switch (value) {
           case ProjectCardMenuAction.rename:

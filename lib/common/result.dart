@@ -17,7 +17,7 @@ class Result<T> {
     final value = data;
 
     if (value == null) {
-      throw StateError('Resultado nÃ£o possui dados.');
+      throw StateError('Resultado não possui dados.');
     }
 
     return value;

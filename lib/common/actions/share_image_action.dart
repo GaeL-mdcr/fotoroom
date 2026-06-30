@@ -19,7 +19,7 @@ class ShareImageAction {
     if (imagePath == null || imagePath.trim().isEmpty) {
       context.read<SystemMessageService>().mostrarErro(
         context: context,
-        mensagem: 'Nenhuma imagem salva disponÃ­vel para compartilhar.',
+        mensagem: 'Nenhuma imagem salva disponível para compartilhar.',
       );
 
       return false;
@@ -36,7 +36,7 @@ class ShareImageAction {
     final mensagem = sucesso
         ? 'Compartilhamento solicitado.'
         : exportViewModel.mensagemErro ??
-              'NÃ£o foi possÃ­vel compartilhar a imagem.';
+              'Não foi possível compartilhar a imagem.';
 
     final mensagensAtivas = context
         .read<SettingsViewModel>()

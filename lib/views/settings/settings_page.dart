@@ -19,10 +19,10 @@ class SettingsPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('ConfiguraÃ§Ãµes'),
+            title: const Text('Configurações'),
             actions: [
               IconButton(
-                tooltip: 'Restaurar padrÃ£o',
+                tooltip: 'Restaurar padrão',
                 onPressed: viewModel.restaurarPadrao,
                 icon: const Icon(Icons.restart_alt),
               ),
@@ -30,7 +30,7 @@ class SettingsPage extends StatelessWidget {
           ),
           body: ListView(
             children: [
-              const _SettingsSectionTitle(title: 'AparÃªncia'),
+              const _SettingsSectionTitle(title: 'Aparência'),
               RadioGroup<AppThemeMode>(
                 groupValue: configuracoes.themeMode,
                 onChanged: (value) {
@@ -60,7 +60,7 @@ class SettingsPage extends StatelessWidget {
               SwitchListTile(
                 title: const Text('Mostrar mensagens do sistema'),
                 subtitle: const Text(
-                  'Exibe avisos simples apÃ³s salvar, compartilhar ou concluir aÃ§Ãµes.',
+                  'Exibe avisos simples após salvar, compartilhar ou concluir ações.',
                 ),
                 value: configuracoes.showSystemMessages,
                 onChanged: viewModel.alterarMensagensDoSistema,

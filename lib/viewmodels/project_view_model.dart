@@ -71,7 +71,7 @@ class ProjectViewModel extends ChangeNotifier {
     try {
       await _recarregarProjetos();
     } catch (_) {
-      _mensagemErro = 'NÃ£o foi possÃ­vel carregar os projetos.';
+      _mensagemErro = 'Não foi possível carregar os projetos.';
     }
 
     _carregando = false;
@@ -117,7 +117,7 @@ class ProjectViewModel extends ChangeNotifier {
 
       return true;
     } catch (_) {
-      _mensagemErro = 'NÃ£o foi possÃ­vel salvar a imagem do projeto.';
+      _mensagemErro = 'Não foi possível salvar a imagem do projeto.';
       notifyListeners();
 
       return false;
@@ -146,7 +146,7 @@ class ProjectViewModel extends ChangeNotifier {
 
       return criouProjeto;
     } catch (_) {
-      _mensagemErro = 'NÃ£o foi possÃ­vel criar o projeto.';
+      _mensagemErro = 'Não foi possível criar o projeto.';
       return false;
     } finally {
       _carregando = false;

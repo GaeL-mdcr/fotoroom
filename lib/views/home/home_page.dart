@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
-            label: 'ConfiguraÃ§Ãµes',
+            label: 'Configurações',
           ),
         ],
       ),
